@@ -137,7 +137,7 @@ const GENDER = {
 }
 
 // 访客可见的共享字段
-const GUEST_VISIBLE_FIELDS = ['name', 'gender', 'birth_year', 'is_deceased', 'avatar']
+const GUEST_VISIBLE_FIELDS = ['name', 'gender', 'birth_year', 'is_deceased']
 
 module.exports = {
   SHARED_FIELDS,

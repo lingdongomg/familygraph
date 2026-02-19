@@ -73,6 +73,7 @@ async function create(params) {
     birth_year: person_birth_year || null,
     is_deceased: false,
     avatar: '',
+    avatar_public: false,
     generation: 0,
     bound_user_id: OPENID,
     created_at: now,

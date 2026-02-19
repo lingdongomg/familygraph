@@ -74,38 +74,27 @@ Page({
     if (!personId) return
 
     const { members, familyId } = this.data
+    const detailUrl = `/pages/person/detail/index?person_id=${personId}&family_id=${familyId}`
 
     // Find the current user's bound person in this family
     const myPerson = members.find(m => m.bound_user_id === this.data.currentUserId)
 
-    if (!myPerson || myPerson._id === personId) {
-      // Not bound or tapped self — go straight to detail
-      wx.navigateTo({
-        url: `/pages/person/detail/index?person_id=${personId}&family_id=${familyId}`
-      })
-      return
-    }
+    // Navigate immediately
+    wx.navigateTo({ url: detailUrl })
 
-    // Compute relationship title, then navigate
-    api.callFunction('relationship/computeTitle', {
-      family_id: familyId,
-      from_person_id: myPerson._id,
-      to_person_id: personId
-    }).then(result => {
-      const title = result && (result.formal_title || result.title)
-      if (title) {
-        wx.showToast({ title: title, icon: 'none', duration: 2000 })
-      }
-      setTimeout(() => {
-        wx.navigateTo({
-          url: `/pages/person/detail/index?person_id=${personId}&family_id=${familyId}`
-        })
-      }, title ? 1500 : 0)
-    }).catch(() => {
-      wx.navigateTo({
-        url: `/pages/person/detail/index?person_id=${personId}&family_id=${familyId}`
-      })
-    })
+    // Show relationship toast in the background (non-blocking)
+    if (myPerson && myPerson._id !== personId) {
+      api.callFunction('relationship/computeTitle', {
+        family_id: familyId,
+        from_person_id: myPerson._id,
+        to_person_id: personId
+      }).then(result => {
+        const title = result && (result.formal_title || result.title)
+        if (title) {
+          wx.showToast({ title: title, icon: 'none', duration: 2000 })
+        }
+      }).catch(() => {})
+    }
   },
 
   onAddMember() {

@@ -88,6 +88,7 @@ async function create(params) {
     birth_year: birth_year || null,
     is_deceased,
     avatar: '',
+    avatar_public: false,
     generation,
     bound_user_id: null,
     created_at: now,
@@ -182,6 +183,15 @@ async function update(params) {
     if (key in fields && key !== 'generation') {
       // generation is computed, not directly editable
       updateData[key] = fields[key]
+    }
+  }
+
+  // Handle avatar_public: only bound user or owner can modify
+  if ('avatar_public' in fields) {
+    const isSelf = person.bound_user_id === openid
+    const isOwner = membership.role === 'owner'
+    if (isSelf || isOwner) {
+      updateData.avatar_public = !!fields.avatar_public
     }
   }
 
@@ -329,6 +339,16 @@ async function getDetail(params) {
     result[key] = person[key] !== undefined ? person[key] : null
   }
   result.bound_user_id = person.bound_user_id || null
+  result.avatar_public = !!person.avatar_public
+
+  // Filter avatar visibility:
+  // - Bound user (self) and owner always see avatar
+  // - Others only if avatar_public is true
+  const isSelf = person.bound_user_id === openid
+  const isOwner = membership.role === 'owner'
+  if (!isSelf && !isOwner && !person.avatar_public) {
+    result.avatar = ''
+  }
 
   // Get caller's private overlay (person_notes)
   const noteRes = await db.collection('person_notes')
@@ -399,18 +419,24 @@ async function list(params) {
     }
   }
 
-  // Assemble result
-  const result = persons.map(p => ({
-    _id: p._id,
-    name: p.name,
-    gender: p.gender,
-    birth_year: p.birth_year || null,
-    is_deceased: p.is_deceased || false,
-    avatar: p.avatar || '',
-    generation: p.generation !== undefined ? p.generation : null,
-    bound_user_id: p.bound_user_id || null,
-    custom_title: noteMap[p._id] || null
-  }))
+  // Assemble result with avatar privacy filtering
+  const isOwner = membership.role === 'owner'
+  const result = persons.map(p => {
+    const isSelf = p.bound_user_id === openid
+    const avatarVisible = isSelf || isOwner || !!p.avatar_public
+    return {
+      _id: p._id,
+      name: p.name,
+      gender: p.gender,
+      birth_year: p.birth_year || null,
+      is_deceased: p.is_deceased || false,
+      avatar: avatarVisible ? (p.avatar || '') : '',
+      avatar_public: !!p.avatar_public,
+      generation: p.generation !== undefined ? p.generation : null,
+      bound_user_id: p.bound_user_id || null,
+      custom_title: noteMap[p._id] || null
+    }
+  })
 
   return success(result)
 }

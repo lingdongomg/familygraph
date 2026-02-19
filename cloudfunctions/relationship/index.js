@@ -176,18 +176,24 @@ async function handleComputeTitle(openid, { family_id, from_person_id, to_person
     return success({ title: '本人', path_key: null })
   }
 
-  // 加载该家庭所有关系边
-  const { data: edges } = await db.collection('relationships')
-    .where({ family_id })
-    .get()
+  // 并行加载关系边和所有人物（需要性别信息用于反转）
+  const [edgesRes, personsRes, targetRes] = await Promise.all([
+    db.collection('relationships').where({ family_id }).get(),
+    db.collection('persons').where({ family_id }).field({ _id: true, gender: true }).get(),
+    db.collection('persons').doc(to_person_id).get().catch(() => null)
+  ])
 
-  // 查找目标人物以获取性别
-  let targetPerson
-  try {
-    const res = await db.collection('persons').doc(to_person_id).get()
-    targetPerson = res.data
-  } catch (e) {
+  if (!targetRes || !targetRes.data) {
     return fail('目标人物不存在')
+  }
+
+  const edges = edgesRes.data
+  const targetPerson = targetRes.data
+
+  // 构建性别映射
+  const genderMap = {}
+  for (const p of personsRes.data) {
+    genderMap[p._id] = p.gender
   }
 
   // 构建邻接表
@@ -203,24 +209,30 @@ async function handleComputeTitle(openid, { family_id, from_person_id, to_person
   }
 
   // BFS 搜索最短路径
-  const title = bfsComputeTitle(adjacency, from_person_id, to_person_id, targetPerson.gender)
+  const title = bfsComputeTitle(adjacency, from_person_id, to_person_id, targetPerson.gender, genderMap)
 
   return success({ title })
 }
 
 /**
  * BFS 从 startId 到 endId，返回称谓字符串
+ *
+ * 边的 relation_type 含义是 "from_id 是 to_id 的 X"，
+ * 但 FORMAL_TITLE_MAP 的语义是 "目标对我来说是什么"。
+ * 因此遍历每条边时需要反转：REVERSE_RELATION[X][toGender]，
+ * 得到 "to 对 from 来说是什么"。
+ *
+ * @param {object} adjacency  邻接表，每项含 { to_id, relation_type }
+ * @param {object} genderMap  personId -> gender 映射
  */
-function bfsComputeTitle(adjacency, startId, endId, targetGender) {
+function bfsComputeTitle(adjacency, startId, endId, targetGender, genderMap) {
   const visited = new Set()
-  // 队列元素: { personId, path: [relation_type, ...] }
   const queue = [{ personId: startId, path: [] }]
   visited.add(startId)
 
   while (queue.length > 0) {
     const { personId, path } = queue.shift()
 
-    // 超过最大深度则跳过
     if (path.length >= BFS_MAX_DEPTH) {
       continue
     }
@@ -231,9 +243,13 @@ function bfsComputeTitle(adjacency, startId, endId, targetGender) {
         continue
       }
 
-      const newPath = [...path, neighbor.relation_type]
+      // 反转边类型：edge.relation_type 是 "from 是 to 的 X"
+      // 我们需要 "to 是 from 的 Y"，即 REVERSE_RELATION[X][toGender]
+      const toGender = genderMap[neighbor.to_id] || 'male'
+      const reverseMap = REVERSE_RELATION[neighbor.relation_type]
+      const reversedType = reverseMap ? (reverseMap[toGender] || neighbor.relation_type) : neighbor.relation_type
+      const newPath = [...path, reversedType]
 
-      // 找到目标
       if (neighbor.to_id === endId) {
         const pathKey = newPath.join('>') + '|' + targetGender
         return FORMAL_TITLE_MAP[pathKey] || '亲属'
@@ -244,7 +260,6 @@ function bfsComputeTitle(adjacency, startId, endId, targetGender) {
     }
   }
 
-  // 无法在限定深度内找到路径
   return '亲属'
 }
 
@@ -266,7 +281,7 @@ async function handleGetGraph(openid, { family_id }) {
   const [personsRes, edgesRes, notesRes] = await Promise.all([
     db.collection('persons')
       .where({ family_id })
-      .field({ _id: true, name: true, gender: true, generation: true, avatar: true, bound_user_id: true })
+      .field({ _id: true, name: true, gender: true, generation: true, avatar: true, avatar_public: true, bound_user_id: true })
       .get(),
     db.collection('relationships')
       .where({ family_id })
@@ -296,6 +311,12 @@ async function handleGetGraph(openid, { family_id }) {
   const titles = {}
 
   if (myPerson) {
+    // 构建性别映射
+    const genderMap = {}
+    for (const n of nodes) {
+      genderMap[n._id] = n.gender
+    }
+
     // 构建邻接表
     const adjacency = {}
     for (const edge of edges) {
@@ -318,7 +339,7 @@ async function handleGetGraph(openid, { family_id }) {
         continue
       }
 
-      const formalTitle = bfsComputeTitle(adjacency, myPerson._id, node._id, node.gender)
+      const formalTitle = bfsComputeTitle(adjacency, myPerson._id, node._id, node.gender, genderMap)
       titles[node._id] = {
         formal_title: formalTitle,
         custom_title: customTitleMap[node._id] || null
@@ -334,7 +355,22 @@ async function handleGetGraph(openid, { family_id }) {
     }
   }
 
-  return success({ nodes, edges, titles })
+  // Filter avatar visibility in graph nodes
+  const isOwner = membership.role === 'owner'
+  const filteredNodes = nodes.map(n => {
+    const isSelf = n.bound_user_id === openid
+    const avatarVisible = isSelf || isOwner || !!n.avatar_public
+    return {
+      _id: n._id,
+      name: n.name,
+      gender: n.gender,
+      generation: n.generation,
+      avatar: avatarVisible ? (n.avatar || '') : '',
+      bound_user_id: n.bound_user_id
+    }
+  })
+
+  return success({ nodes: filteredNodes, edges, titles })
 }
 
 // ---------------------------------------------------------------------------

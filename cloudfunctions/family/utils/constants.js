@@ -42,7 +42,7 @@ const SHARE_LINK_EXPIRE_DAYS = 7
 const JOIN_REQUEST_EXPIRE_HOURS = 48
 const EDIT_HISTORY_RETAIN_DAYS = 90
 const BFS_MAX_DEPTH = 5
-const GUEST_VISIBLE_FIELDS = ['name', 'gender', 'birth_year', 'is_deceased', 'avatar']
+const GUEST_VISIBLE_FIELDS = ['name', 'gender', 'birth_year', 'is_deceased']
 
 module.exports = {
   SHARED_FIELDS, PRIVATE_OVERLAY_FIELDS, ENCRYPTED_FIELDS,

@@ -60,6 +60,15 @@
         <switch checked="{{isDeceased}}" bindchange="onDeceasedChange" color="#8B4513" />
       </view>
     </view>
+
+    <!-- Avatar public toggle (only for bound user) -->
+    <view class="form-group" wx:if="{{canToggleAvatarPublic}}">
+      <view class="switch-row">
+        <text class="form-label">公开头像</text>
+        <switch checked="{{avatarPublic}}" bindchange="onAvatarPublicChange" color="#8B4513" />
+      </view>
+      <text class="form-hint">开启后其他家庭成员可以看到头像</text>
+    </view>
   </view>
 
   <!-- Save button -->

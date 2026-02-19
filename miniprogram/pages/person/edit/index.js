@@ -11,6 +11,8 @@ Page({
     birthYear: '',
     isDeceased: false,
     avatar: '',
+    avatarPublic: false,
+    canToggleAvatarPublic: false,
     loading: true,
     submitting: false,
     cropping: false,
@@ -35,11 +37,17 @@ Page({
 
   async loadPerson() {
     try {
-      await auth.ensureLogin()
+      const user = await auth.ensureLogin()
       const person = await api.callFunction('person/getDetail', {
         person_id: this.data.personId,
         family_id: this.data.familyId
       })
+
+      // avatar_public can only be toggled by the bound user or owner
+      const isSelf = person.bound_user_id === (user.openid_hash || '')
+      // We don't know the caller's role here directly, but the server enforces it
+      // Show the toggle if bound to this person (simplest check)
+      const canToggle = !!isSelf
 
       this.setData({
         name: person.name || '',
@@ -47,6 +55,8 @@ Page({
         birthYear: person.birth_year ? String(person.birth_year) : '',
         isDeceased: !!person.is_deceased,
         avatar: person.avatar || '',
+        avatarPublic: !!person.avatar_public,
+        canToggleAvatarPublic: canToggle,
         loading: false
       })
     } catch (err) {
@@ -69,6 +79,10 @@ Page({
 
   onDeceasedChange(e) {
     this.setData({ isDeceased: e.detail.value })
+  },
+
+  onAvatarPublicChange(e) {
+    this.setData({ avatarPublic: e.detail.value })
   },
 
   async onChooseAvatar() {
@@ -118,7 +132,7 @@ Page({
   },
 
   async onSubmit() {
-    const { name, gender, birthYear, isDeceased, avatar, personId, familyId } = this.data
+    const { name, gender, birthYear, isDeceased, avatar, avatarPublic, personId, familyId } = this.data
 
     if (!name.trim()) {
       api.showError('请输入姓名')
@@ -136,7 +150,8 @@ Page({
         gender,
         birth_year: birthYear ? parseInt(birthYear) : null,
         is_deceased: isDeceased,
-        avatar: avatar || null
+        avatar: avatar || null,
+        avatar_public: avatarPublic
       }, '保存中...')
 
       api.showSuccess('保存成功')
