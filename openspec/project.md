@@ -195,5 +195,5 @@ FamilyGraph/
 - WeChat Open Platform (login, openid, subscribe messages)
 - WeChat Cloud Development environment (database, storage, cloud functions)
 - COS temporary signed URLs for image access (2-hour expiry)
-- Cloud environment variable: `ENCRYPTION_KEY` (AES 密钥)
+- Hardcoded `ENCRYPTION_KEY` in `cloudfunctions/*/utils/crypto.js` (AES 密钥，已内置)
 - Timed trigger: daily 03:00 cleanup task (expired invite codes, join requests, edit history)

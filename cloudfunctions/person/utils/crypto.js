@@ -6,14 +6,10 @@ const crypto = require('crypto')
 
 const ALGORITHM = 'aes-256-cbc'
 const IV_LENGTH = 16
+const HARDCODED_KEY = '22f9c2560129fd419d98d32acb6fc3180189f57b322f16d311755302d51bea6d'
 
 function getKey() {
-  const key = process.env.ENCRYPTION_KEY
-  if (!key) {
-    throw new Error('ENCRYPTION_KEY 环境变量未设置')
-  }
-  // 确保 key 为 32 字节
-  return crypto.createHash('sha256').update(key).digest()
+  return crypto.createHash('sha256').update(HARDCODED_KEY).digest()
 }
 
 /**
