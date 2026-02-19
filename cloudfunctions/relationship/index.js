@@ -9,9 +9,9 @@
  */
 
 const cloud = require('wx-server-sdk')
-const { success, fail, checkMembership, hasPermission } = require('../utils/helpers')
-const { RELATION_TYPES, REVERSE_RELATION, BFS_MAX_DEPTH } = require('../utils/constants')
-const FORMAL_TITLE_MAP = require('../utils/titleMap')
+const { success, fail, checkMembership, hasPermission } = require('./utils/helpers')
+const { RELATION_TYPES, REVERSE_RELATION, BFS_MAX_DEPTH } = require('./utils/constants')
+const FORMAL_TITLE_MAP = require('./utils/titleMap')
 
 cloud.init({ env: process.env.CLOUD_ENV || null })
 const db = cloud.database()

@@ -5,7 +5,7 @@ const db = cloud.database()
 const _ = db.command
 
 const crypto = require('crypto')
-const { success, fail, checkMembership, hasPermission, generateCode } = require('../utils/helpers')
+const { success, fail, checkMembership, hasPermission, generateCode } = require('./utils/helpers')
 
 function hashOpenId(openid) {
   return crypto.createHash('sha256').update(openid).digest('hex')

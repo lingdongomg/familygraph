@@ -1,7 +1,7 @@
 # Project Context
 
 ## Purpose
-亲记 (FamilyGraph) — A WeChat Mini Program for recording and visualizing family relationships. Users can create family groups, add family members (Persons), define relationships between them, and view an interactive force-directed graph of the family tree. The app supports up to five generations of Chinese kinship titles, photo albums with tagging, a shared/private overlay data model, and guest read-only sharing.
+亲谱 (FamilyGraph) — A WeChat Mini Program for recording and visualizing family relationships. Users can create family groups, add family members (Persons), define relationships between them, and view an interactive force-directed graph of the family tree. The app supports up to five generations of Chinese kinship titles, photo albums with tagging, a shared/private overlay data model, and guest read-only sharing.
 
 ## Tech Stack
 - **前端**: WeChat Mini Program (WXML, WXSS, JavaScript ES6+)
@@ -51,62 +51,45 @@ FamilyGraph/
 │   │   ├── person-card/              # 人物卡片
 │   │   ├── photo-tagger/             # 交互式照片标记
 │   │   └── family-graph/             # Canvas 图谱渲染
-│   ├── utils/                        # 7 个工具模块
+│   ├── utils/                        # 5 个工具模块
 │   │   ├── constants.js              # 常量与配置（含 SHARED_FIELDS, PRIVATE_OVERLAY_FIELDS）
 │   │   ├── api.js                    # 云函数调用封装
 │   │   ├── auth.js                   # 客户端登录状态管理
-│   │   ├── crypto.js                 # AES-256-CBC 加解密
-│   │   ├── titleMap.js               # 亲属称谓查找表（~150+ 条目，覆盖五代）
 │   │   ├── forceGraph.js             # 力导向布局算法（~300 行）
 │   │   └── imageCompressor.js        # 客户端图片压缩
 │   └── static/                       # 静态资源
 │       ├── default-male.png
 │       ├── default-female.png
 │       ├── logo.png
-│       └── tab-icons/
-├── cloudfunctions/                   # ~24 个云函数，按领域组织
-│   ├── user/
-│   │   ├── login/index.js            # 微信登录 + openid 加密
-│   │   └── updateProfile/index.js    # 昵称/头像更新
-│   ├── family/
-│   │   ├── create/index.js           # 创建家庭 + Owner + 成员记录
-│   │   ├── delete/index.js           # Owner 级联删除（含 person_notes）
-│   │   ├── getDetail/index.js        # 家庭信息 + 统计
-│   │   ├── generateInviteCode/index.js  # 6 位邀请码（7 天过期）
-│   │   ├── generateShareLink/index.js   # 访客分享链接
-│   │   └── getByShareCode/index.js      # 验证分享码
-│   ├── member/
-│   │   ├── applyJoin/index.js        # 验证邀请码 + 创建申请
-│   │   ├── reviewJoin/index.js       # 审批 + 绑定 Person
-│   │   ├── leave/index.js            # 退出家庭
-│   │   ├── changeRole/index.js       # Owner 修改角色
-│   │   └── list/index.js             # 家庭成员列表
-│   ├── person/
-│   │   ├── create/index.js           # 创建（仅共享字段）+ 关系 + 辈分计算
-│   │   ├── update/index.js           # 更新共享字段 + 编辑历史快照
-│   │   ├── delete/index.js           # Owner 级联删除（含所有用户的 person_notes）
-│   │   ├── getDetail/index.js        # 共享层 + 当前用户 person_notes 合并返回
-│   │   └── list/index.js             # 家庭全部成员 + 批量 custom_title
-│   ├── relationship/
-│   │   ├── create/index.js           # 正向 + 反向边
-│   │   ├── delete/index.js           # 删除双向边
-│   │   ├── computeTitle/index.js     # BFS 亲属称谓计算（最大深度 5）
-│   │   └── getGraph/index.js         # 返回图谱数据
-│   ├── photo/
-│   │   ├── upload/index.js           # 配额检查 + 返回上传路径
-│   │   ├── delete/index.js           # 删除文件/标记/更新存储
-│   │   ├── list/index.js             # 照片列表
-│   │   ├── addTag/index.js           # 创建位置标记
-│   │   └── removeTag/index.js        # 删除标记
-│   ├── note/
-│   │   ├── upsert/index.js           # 创建/更新私人覆盖层（phone/wechat_id 加密）
-│   │   └── get/index.js              # 获取当前用户对某人的完整私人覆盖数据
-│   ├── history/
-│   │   ├── list/index.js             # Owner 查看编辑历史（仅共享字段变更）
-│   │   └── rollback/index.js         # Owner 回滚操作（仅共享字段）
-│   └── admin/
-│       ├── setStorageUnlimited/index.js  # 开发者工具
-│       └── cleanup/index.js          # 每日定时清理
+│       └── icons/                    # Tab bar 图标、空状态图标
+├── cloudfunctions/                   # 9 个云函数域，每域单入口 action 路由，各自内含 utils/
+│   ├── user/                        # login, updateProfile
+│   │   ├── index.js
+│   │   └── utils/                   # crypto.js, helpers.js
+│   ├── family/                      # create, delete, getDetail, generateInviteCode, generateShareLink, getByShareCode
+│   │   ├── index.js
+│   │   └── utils/                   # helpers.js, constants.js
+│   ├── member/                      # applyJoin, reviewJoin, validateInvite, listJoinRequests, leave, changeRole, list
+│   │   ├── index.js
+│   │   └── utils/                   # helpers.js
+│   ├── person/                      # create, update, delete, getDetail, list
+│   │   ├── index.js
+│   │   └── utils/                   # crypto.js, helpers.js, constants.js
+│   ├── relationship/                # create, delete, computeTitle, getGraph
+│   │   ├── index.js
+│   │   └── utils/                   # helpers.js, constants.js, titleMap.js
+│   ├── photo/                       # upload, delete, list, detail, addTag, removeTag
+│   │   ├── index.js
+│   │   └── utils/                   # helpers.js, constants.js
+│   ├── note/                        # upsert, get
+│   │   ├── index.js
+│   │   └── utils/                   # crypto.js, helpers.js
+│   ├── history/                     # list, rollback
+│   │   ├── index.js
+│   │   └── utils/                   # helpers.js, constants.js
+│   └── admin/                       # setStorageUnlimited, cleanup
+│       ├── index.js
+│       └── utils/                   # helpers.js, constants.js
 ├── project.config.json               # 微信开发者工具配置
 ├── project.private.config.json       # 环境特定配置
 └── openspec/                         # 项目规格文档
@@ -120,7 +103,7 @@ FamilyGraph/
 
 ### Code Style
 - JavaScript (ES6+), no TypeScript in V1
-- Cloud functions organized by domain: `cloudfunctions/{domain}/{action}/index.js`
+- Cloud functions organized by domain: `cloudfunctions/{domain}/index.js` with action routing via `event.action`
 - Mini program pages follow standard 4-file structure: `.wxml`, `.wxss`, `.js`, `.json`
 - Utility modules in `miniprogram/utils/`
 - Reusable UI in `miniprogram/components/`
@@ -131,7 +114,7 @@ FamilyGraph/
 - **JS 常量**: UPPER_SNAKE_CASE（如 `RELATION_TYPES`, `FORMAL_TITLE_MAP`, `SHARED_FIELDS`, `PRIVATE_OVERLAY_FIELDS`）
 - **数据库集合**: snake_case（如 `family_members`, `edit_history`）
 - **数据库字段**: snake_case（如 `family_id`, `created_at`）
-- **云函数目录**: camelCase（如 `applyJoin`, `getDetail`）
+- **云函数目录**: 领域名小写（如 `user`, `family`, `member`），单入口 `index.js` 内通过 `action` 路由
 
 ### API Conventions
 - 云函数统一返回格式: `{ errno: number, errmsg: string, data: object }`

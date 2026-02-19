@@ -91,7 +91,7 @@
         <view class="item-arrow"></view>
       </view>
       <view class="list-item settings-item" bindtap="onAbout">
-        <text class="settings-label">关于亲记</text>
+        <text class="settings-label">关于亲谱</text>
         <view class="item-arrow"></view>
       </view>
     </view>

@@ -4,8 +4,8 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
 
-const { success, fail, checkMembership, hasPermission, generateCode } = require('../utils/helpers')
-const { GUEST_VISIBLE_FIELDS, INVITE_CODE_EXPIRE_DAYS, SHARE_LINK_EXPIRE_DAYS } = require('../utils/constants')
+const { success, fail, checkMembership, hasPermission, generateCode } = require('./utils/helpers')
+const { GUEST_VISIBLE_FIELDS, INVITE_CODE_EXPIRE_DAYS, SHARE_LINK_EXPIRE_DAYS } = require('./utils/constants')
 
 // ────────────────────────────────────────
 // Router

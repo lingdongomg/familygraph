@@ -10,8 +10,8 @@
  */
 
 const cloud = require('wx-server-sdk')
-const { success, fail, checkMembership } = require('../utils/helpers')
-const { STORAGE_QUOTA_BYTES, MAX_PHOTOS_PER_PERSON, ROLES } = require('../utils/constants')
+const { success, fail, checkMembership } = require('./utils/helpers')
+const { STORAGE_QUOTA_BYTES, MAX_PHOTOS_PER_PERSON, ROLES } = require('./utils/constants')
 
 cloud.init({ env: process.env.CLOUD_ENV || null })
 const db = cloud.database()

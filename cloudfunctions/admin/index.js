@@ -7,10 +7,10 @@
  */
 
 const cloud = require('wx-server-sdk')
-const { success, fail } = require('../utils/helpers')
+const { success, fail } = require('./utils/helpers')
 const {
   EDIT_HISTORY_RETAIN_DAYS
-} = require('../utils/constants')
+} = require('./utils/constants')
 
 cloud.init({ env: process.env.CLOUD_ENV || null })
 const db = cloud.database()

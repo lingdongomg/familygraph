@@ -141,8 +141,8 @@ Page({
 
   onAbout() {
     wx.showModal({
-      title: '关于亲记',
-      content: '亲记 — 用心记录家庭的故事\n\n版本：1.0.0',
+      title: '关于亲谱',
+      content: '亲谱 — 用心记录家庭的故事\n\n版本：1.0.0',
       showCancel: false,
       confirmText: '好的',
       confirmColor: '#8B4513'

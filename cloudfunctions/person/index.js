@@ -1,12 +1,12 @@
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
-const { getOpenId, success, fail, checkMembership, hasPermission } = require('../utils/helpers')
+const { getOpenId, success, fail, checkMembership, hasPermission } = require('./utils/helpers')
 const {
   SHARED_FIELDS, PRIVATE_OVERLAY_FIELDS, ENCRYPTED_FIELDS,
   REVERSE_RELATION, GENERATION_DELTA, RELATION_TYPES
-} = require('../utils/constants')
-const { encrypt, decrypt } = require('../utils/crypto')
+} = require('./utils/constants')
+const { encrypt, decrypt } = require('./utils/crypto')
 
 const db = cloud.database()
 const _ = db.command

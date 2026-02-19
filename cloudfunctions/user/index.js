@@ -8,8 +8,8 @@
 
 const cloud = require('wx-server-sdk')
 const crypto = require('crypto')
-const { encrypt } = require('../utils/crypto')
-const { success, fail } = require('../utils/helpers')
+const { encrypt } = require('./utils/crypto')
+const { success, fail } = require('./utils/helpers')
 
 cloud.init({ env: process.env.CLOUD_ENV || null })
 const db = cloud.database()
