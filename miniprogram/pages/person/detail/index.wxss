@@ -1,0 +1,96 @@
+/* Person header */
+.person-header {
+  display: flex;
+  align-items: center;
+}
+
+.person-header-info {
+  flex: 1;
+  margin-left: 30rpx;
+}
+
+.person-name {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333333;
+  display: block;
+}
+
+.person-title {
+  font-size: 26rpx;
+  color: #8B4513;
+  margin-top: 6rpx;
+  display: block;
+}
+
+.person-tags {
+  display: flex;
+  align-items: center;
+  margin-top: 12rpx;
+}
+
+.tag-deceased {
+  background: #F5F5F5;
+  color: #999999;
+}
+
+/* Section header with edit link */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.section-header .section-title {
+  margin-bottom: 0;
+}
+
+.edit-link {
+  font-size: 26rpx;
+  color: #8B4513;
+}
+
+/* Info rows */
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12rpx 0;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: #666666;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333333;
+  text-align: right;
+  margin-left: 20rpx;
+  word-break: break-all;
+}
+
+.info-empty {
+  color: #CCCCCC;
+}
+
+/* Photo grid */
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.photo-thumb {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 8rpx;
+}
+
+.empty-hint {
+  padding: 20rpx 0;
+  text-align: center;
+}

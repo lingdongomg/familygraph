@@ -1,0 +1,126 @@
+.album-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 120rpx;
+}
+
+.album-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #eee;
+}
+
+.album-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.photo-count {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 200rpx;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #ddd;
+  border-top-color: #07c160;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* Photo grid - 3 columns */
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8rpx;
+}
+
+.photo-item {
+  width: calc(33.333% - 8rpx);
+  margin: 4rpx;
+  aspect-ratio: 1;
+  border-radius: 8rpx;
+  overflow: hidden;
+  background-color: #eee;
+}
+
+.photo-thumb {
+  width: 100%;
+  height: 100%;
+}
+
+/* Empty state */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 200rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* Upload bar */
+.upload-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background-color: #fff;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.upload-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  background-color: #07c160;
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 44rpx;
+  border: none;
+}
+
+.upload-btn[disabled] {
+  background-color: #ccc;
+  color: #fff;
+}

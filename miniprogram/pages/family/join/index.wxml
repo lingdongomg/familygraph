@@ -1,0 +1,81 @@
+<view class="container">
+
+  <!-- Step 1: Enter invite code -->
+  <block wx:if="{{step === 1}}">
+    <view class="card">
+      <view class="section-title">输入邀请码</view>
+      <view class="section-subtitle">请输入家庭管理员提供的6位邀请码</view>
+
+      <view class="form-group">
+        <text class="form-label">邀请码</text>
+        <input
+          class="form-input invite-code-input"
+          placeholder="请输入6位邀请码"
+          value="{{inviteCode}}"
+          bindinput="onInviteCodeInput"
+          maxlength="6"
+          type="text"
+        />
+      </view>
+    </view>
+
+    <view
+      class="{{validating || inviteCode.length !== 6 ? 'btn-disabled' : 'btn-primary'}} submit-btn"
+      bindtap="onValidate"
+    >
+      {{validating ? '验证中...' : '验证邀请码'}}
+    </view>
+  </block>
+
+  <!-- Step 2: Select person and submit -->
+  <block wx:if="{{step === 2}}">
+    <view class="card">
+      <view class="family-info">
+        <text class="family-name-label">家庭</text>
+        <text class="family-name-value">{{familyName}}</text>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="section-title">选择您对应的成员</view>
+      <view class="section-subtitle">请选择您在该家庭中对应的成员身份</view>
+
+      <radio-group class="person-list" bindchange="onPersonSelect">
+        <view
+          class="person-item {{selectedPersonId === item._id ? 'person-item-active' : ''}}"
+          wx:for="{{persons}}"
+          wx:key="_id"
+        >
+          <radio
+            value="{{item._id}}"
+            checked="{{selectedPersonId === item._id}}"
+            color="#8B4513"
+          />
+          <view class="person-info">
+            <text class="person-name">{{item.name}}</text>
+            <view class="person-meta">
+              <text class="tag {{item.gender === 'male' ? 'tag-male' : 'tag-female'}}">
+                {{item.gender === 'male' ? '男' : '女'}}
+              </text>
+              <text wx:if="{{item.birth_year}}" class="person-birth-year">
+                {{item.birth_year}}年
+              </text>
+            </view>
+          </view>
+        </view>
+      </radio-group>
+    </view>
+
+    <view
+      class="{{submitting || !selectedPersonId ? 'btn-disabled' : 'btn-primary'}} submit-btn"
+      bindtap="onSubmit"
+    >
+      {{submitting ? '提交中...' : '提交申请'}}
+    </view>
+
+    <view class="btn-secondary back-btn" bindtap="onBackToStep1">
+      重新输入邀请码
+    </view>
+  </block>
+
+</view>

@@ -1,0 +1,37 @@
+<!--
+  person-card: A compact card showing a person's avatar, name,
+  display title, gender tag, and optional navigation arrow.
+-->
+<view class="person-card card" bindtap="onTap">
+  <!-- Avatar -->
+  <view class="person-avatar-wrap">
+    <image
+      wx:if="{{person.avatar}}"
+      class="person-avatar avatar avatar-md"
+      src="{{person.avatar}}"
+      mode="aspectFill"
+    />
+    <view
+      wx:else
+      class="person-avatar-placeholder avatar-md {{person.gender === 'male' ? 'avatar-male' : 'avatar-female'}}"
+    >
+      <text class="avatar-initial">{{getInitial()}}</text>
+    </view>
+  </view>
+
+  <!-- Text area -->
+  <view class="person-info">
+    <view class="person-name-row">
+      <text class="person-name">{{person.name || '未命名'}}</text>
+      <!-- Gender tag -->
+      <view wx:if="{{person.gender === 'male'}}" class="tag tag-male">男</view>
+      <view wx:elif="{{person.gender === 'female'}}" class="tag tag-female">女</view>
+    </view>
+    <text class="person-title">{{getDisplayTitle()}}</text>
+  </view>
+
+  <!-- Arrow indicator -->
+  <view wx:if="{{showArrow}}" class="person-arrow">
+    <view class="item-arrow"></view>
+  </view>
+</view>

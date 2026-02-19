@@ -1,0 +1,51 @@
+<view class="album-container">
+  <!-- Header with photo count -->
+  <view class="album-header">
+    <text class="album-title">{{personName}}的照片</text>
+    <text class="photo-count">{{photoCount}}/{{maxPhotos}}</text>
+  </view>
+
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- Photo grid -->
+  <view class="photo-grid" wx:if="{{!loading && photos.length > 0}}">
+    <view
+      class="photo-item"
+      wx:for="{{photos}}"
+      wx:key="_id"
+      data-photo="{{item}}"
+      bindtap="onTapPhoto"
+    >
+      <image
+        class="photo-thumb"
+        src="{{item.thumbnail_url || item.file_id}}"
+        mode="aspectFill"
+        lazy-load
+      />
+    </view>
+  </view>
+
+  <!-- Empty state -->
+  <view class="empty-container" wx:if="{{!loading && photos.length === 0}}">
+    <view class="empty-icon">📷</view>
+    <text class="empty-text">还没有照片</text>
+    <text class="empty-hint">点击下方按钮上传第一张照片</text>
+  </view>
+
+  <!-- Upload button -->
+  <view class="upload-bar">
+    <button
+      class="upload-btn"
+      bindtap="onUpload"
+      disabled="{{uploading || photoCount >= maxPhotos}}"
+    >
+      <text wx:if="{{uploading}}">上传中...</text>
+      <text wx:elif="{{photoCount >= maxPhotos}}">已达上限</text>
+      <text wx:else>上传照片</text>
+    </button>
+  </view>
+</view>

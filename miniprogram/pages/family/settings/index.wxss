@@ -1,0 +1,44 @@
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.member-item {
+  padding: 20rpx 0;
+}
+
+.role-action {
+  padding: 8rpx 20rpx;
+  border: 1rpx solid #8B4513;
+  border-radius: 8rpx;
+}
+
+.role-action-text {
+  font-size: 22rpx;
+  color: #8B4513;
+}
+
+.danger-zone {
+  margin-top: 40rpx;
+}
+
+.danger-title {
+  color: #E53935;
+}

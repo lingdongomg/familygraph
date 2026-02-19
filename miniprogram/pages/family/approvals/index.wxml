@@ -1,0 +1,27 @@
+<view class="container approvals-page">
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- Requests list -->
+    <block wx:if="{{requests.length > 0}}">
+      <view class="section-title">待处理申请（{{requests.length}}）</view>
+      <approval-card
+        wx:for="{{requests}}"
+        wx:key="_id"
+        request="{{item}}"
+        bind:approve="onApprove"
+        bind:reject="onReject"
+      />
+    </block>
+
+    <!-- Empty state -->
+    <view wx:else class="empty-state">
+      <text class="empty-text">暂无加入申请</text>
+      <text class="empty-hint">当有人申请加入家庭时，将在此处显示</text>
+    </view>
+  </block>
+</view>

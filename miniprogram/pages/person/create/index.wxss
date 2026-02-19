@@ -1,0 +1,53 @@
+/* Relation prompt */
+.relation-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 30rpx;
+}
+
+.prompt-text {
+  font-size: 34rpx;
+  color: #333333;
+}
+
+.prompt-name {
+  font-size: 34rpx;
+  color: #8B4513;
+  font-weight: 600;
+}
+
+/* Gender group */
+.gender-group {
+  display: flex;
+  align-items: center;
+  padding-top: 8rpx;
+}
+
+.gender-option {
+  display: flex;
+  align-items: center;
+  margin-right: 60rpx;
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.gender-option text {
+  margin-left: 8rpx;
+}
+
+/* Switch row */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switch-row .form-label {
+  margin-bottom: 0;
+}
+
+/* Submit button */
+.submit-btn {
+  margin-top: 40rpx;
+}

@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "家庭",
+  "usingComponents": {
+    "family-graph": "/components/family-graph/index"
+  }
+}

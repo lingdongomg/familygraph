@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/family/create/index",
+    "pages/family/home/index",
+    "pages/family/invite/index",
+    "pages/family/join/index",
+    "pages/family/approvals/index",
+    "pages/family/settings/index",
+    "pages/person/create/index",
+    "pages/person/detail/index",
+    "pages/person/edit/index",
+    "pages/person/privacy/index",
+    "pages/photo/album/index",
+    "pages/photo/viewer/index",
+    "pages/photo/tag/index",
+    "pages/share/view/index",
+    "pages/history/index/index",
+    "pages/user/profile/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#8B4513",
+    "navigationBarTitleText": "亲记",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F5F5",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#8B4513",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/icons/home.png",
+        "selectedIconPath": "static/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/user/profile/index",
+        "text": "我的",
+        "iconPath": "static/icons/user.png",
+        "selectedIconPath": "static/icons/user-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

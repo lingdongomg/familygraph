@@ -1,0 +1,59 @@
+/* Avatar section */
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 20rpx;
+}
+
+.avatar-section .form-label {
+  align-self: flex-start;
+}
+
+.avatar-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 16rpx;
+}
+
+.avatar-hint {
+  font-size: 24rpx;
+  color: #8B4513;
+  margin-top: 12rpx;
+}
+
+/* Gender group */
+.gender-group {
+  display: flex;
+  align-items: center;
+  padding-top: 8rpx;
+}
+
+.gender-option {
+  display: flex;
+  align-items: center;
+  margin-right: 60rpx;
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.gender-option text {
+  margin-left: 8rpx;
+}
+
+/* Switch row */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switch-row .form-label {
+  margin-bottom: 0;
+}
+
+/* Submit button */
+.submit-btn {
+  margin-top: 40rpx;
+}

@@ -1,0 +1,53 @@
+<view class="viewer-container">
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- Photo display -->
+  <view class="photo-wrapper" wx:if="{{!loading && photo}}">
+    <image
+      class="photo-fullscreen"
+      src="{{photo.file_id}}"
+      mode="aspectFit"
+      bindtap="onPreviewImage"
+    />
+
+    <!-- Tag overlays -->
+    <block wx:if="{{showTags}}">
+      <view
+        class="tag-overlay"
+        wx:for="{{tags}}"
+        wx:key="_id"
+        style="left: {{item.x}}%; top: {{item.y}}%;"
+        data-tag="{{item}}"
+        bindtap="onTapTag"
+      >
+        <view class="tag-dot"></view>
+        <view class="tag-label">{{item.person_name}}</view>
+      </view>
+    </block>
+  </view>
+
+  <!-- Empty state -->
+  <view class="empty-container" wx:if="{{!loading && !photo}}">
+    <text class="empty-text">照片不存在或已被删除</text>
+  </view>
+
+  <!-- Action bar -->
+  <view class="action-bar" wx:if="{{!loading && photo}}">
+    <view class="action-item" bindtap="onToggleTags">
+      <text class="action-icon">{{showTags ? '👁' : '👁‍🗨'}}</text>
+      <text class="action-text">{{showTags ? '隐藏标记' : '显示标记'}}</text>
+    </view>
+    <view class="action-item" bindtap="onTagPhoto">
+      <text class="action-icon">🏷</text>
+      <text class="action-text">标记人物</text>
+    </view>
+    <view class="action-item danger" wx:if="{{isOwnerOrUploader}}" bindtap="onDeletePhoto">
+      <text class="action-icon">🗑</text>
+      <text class="action-text">删除</text>
+    </view>
+  </view>
+</view>

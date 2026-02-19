@@ -1,0 +1,99 @@
+<view class="container profile-page">
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- User info card -->
+    <view class="card user-card">
+      <view class="user-info">
+        <!-- Avatar -->
+        <view class="avatar-wrapper" bindtap="onChangeAvatar">
+          <view class="avatar avatar-lg avatar-placeholder">
+            <image
+              wx:if="{{user.avatar_url}}"
+              src="{{user.avatar_url}}"
+              mode="aspectFill"
+              class="avatar avatar-lg"
+            ></image>
+            <text wx:else class="avatar-fallback">{{user.nick_name[0] || '?'}}</text>
+          </view>
+          <view class="avatar-edit-badge">
+            <text class="avatar-edit-icon">换</text>
+          </view>
+        </view>
+
+        <!-- Nickname display -->
+        <view class="nickname-area" wx:if="{{!editingNickname}}">
+          <text class="nickname-text">{{user.nick_name || '未设置昵称'}}</text>
+          <view class="nickname-edit-btn" bindtap="onEditNickname">
+            <text class="edit-icon">编辑</text>
+          </view>
+        </view>
+
+        <!-- Nickname editing -->
+        <view class="nickname-edit-area" wx:else>
+          <input
+            class="nickname-input form-input"
+            value="{{nicknameInput}}"
+            bindinput="onNicknameInput"
+            placeholder="请输入昵称"
+            maxlength="20"
+            focus="{{true}}"
+            bindconfirm="onNicknameConfirm"
+          />
+          <view class="nickname-edit-actions">
+            <view class="nickname-action-btn cancel-btn" bindtap="onNicknameCancel">取消</view>
+            <view class="nickname-action-btn confirm-btn" bindtap="onNicknameConfirm">保存</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Family list section -->
+    <view class="section-title">我的家庭</view>
+
+    <view class="card family-list-card" wx:if="{{families.length > 0}}">
+      <view
+        class="list-item family-item"
+        wx:for="{{families}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="onEnterFamily"
+      >
+        <view class="family-icon-wrapper">
+          <text class="family-icon-text">{{item.name[0] || '家'}}</text>
+        </view>
+        <view class="item-content">
+          <text class="item-title">{{item.name}}</text>
+          <text class="item-subtitle">{{item.member_count || 0}} 位成员</text>
+        </view>
+        <view class="item-arrow"></view>
+      </view>
+    </view>
+
+    <view class="card empty-family-card" wx:else>
+      <text class="empty-family-text">暂未加入任何家庭</text>
+    </view>
+
+    <!-- Settings section -->
+    <view class="section-title">设置</view>
+
+    <view class="card settings-card">
+      <view class="list-item settings-item" bindtap="onChangeAvatar">
+        <text class="settings-label">更换头像</text>
+        <view class="item-arrow"></view>
+      </view>
+      <view class="list-item settings-item" bindtap="onEditNickname">
+        <text class="settings-label">修改昵称</text>
+        <view class="item-arrow"></view>
+      </view>
+      <view class="list-item settings-item" bindtap="onAbout">
+        <text class="settings-label">关于亲记</text>
+        <view class="item-arrow"></view>
+      </view>
+    </view>
+  </block>
+</view>

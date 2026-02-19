@@ -1,0 +1,12 @@
+<!--
+  family-graph: Interactive canvas-based family tree visualization.
+  Supports panning and tap-to-select nodes.
+-->
+<canvas
+  type="2d"
+  id="familyGraph"
+  style="width:{{width}}px;height:{{height}}px;"
+  bindtouchstart="onTouchStart"
+  bindtouchmove="onTouchMove"
+  bindtouchend="onTouchEnd"
+></canvas>

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "加入申请",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "approval-card": "/components/approval-card/index"
+  }
+}

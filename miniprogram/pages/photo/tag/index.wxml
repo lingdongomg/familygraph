@@ -1,0 +1,77 @@
+<!-- Photo tag page: tag people in a photo -->
+<view class="container tag-page">
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- Photo with tagger component -->
+  <view class="photo-section card" wx:if="{{!loading && photo}}">
+    <view class="section-title">点击照片标记人物</view>
+    <photo-tagger
+      id="photoTagger"
+      src="{{photo.file_id}}"
+      tags="{{tags}}"
+      editable="{{true}}"
+      bind:tagplace="onTagPlace"
+      bind:tagtap="onTagTap"
+    />
+  </view>
+
+  <!-- Existing tags list -->
+  <view class="tags-section card" wx:if="{{!loading && tags.length > 0}}">
+    <view class="section-title">已标记的人物</view>
+    <view
+      class="tag-item"
+      wx:for="{{tags}}"
+      wx:key="_id"
+    >
+      <view class="tag-item-dot"></view>
+      <text class="tag-item-name">{{item.person_name || '未知'}}</text>
+      <view class="tag-item-remove" data-id="{{item._id}}" bindtap="onTagTap">
+        <text class="remove-text">移除</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Empty tag hint -->
+  <view class="hint-section" wx:if="{{!loading && photo && tags.length === 0}}">
+    <text class="hint-text">还没有标记，点击照片中的人物位置开始标记</text>
+  </view>
+
+  <!-- Empty state -->
+  <view class="empty-state" wx:if="{{!loading && !photo}}">
+    <text class="empty-text">照片不存在或已被删除</text>
+  </view>
+
+  <!-- Person picker overlay -->
+  <view class="picker-mask" wx:if="{{showPersonPicker}}" bindtap="onClosePicker">
+    <view class="picker-panel" catchtap="">
+      <view class="picker-header">
+        <text class="picker-title">选择要标记的人物</text>
+        <view class="picker-close" bindtap="onClosePicker">
+          <text class="picker-close-text">取消</text>
+        </view>
+      </view>
+      <scroll-view class="picker-list" scroll-y="{{true}}">
+        <view
+          class="picker-item"
+          wx:for="{{persons}}"
+          wx:key="_id"
+          data-index="{{index}}"
+          bindtap="onSelectPerson"
+        >
+          <image
+            class="picker-avatar avatar avatar-sm"
+            src="{{item.avatar_url || '/images/default-avatar.png'}}"
+            mode="aspectFill"
+          />
+          <text class="picker-name">{{item.name}}</text>
+        </view>
+        <view class="picker-empty" wx:if="{{persons.length === 0}}">
+          <text class="picker-empty-text">暂无家庭成员</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,42 @@
+/* relation-picker styles */
+.relation-picker {
+  padding: 16rpx 0;
+}
+
+.picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.picker-item {
+  width: calc(50% - 8rpx);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+  background: #F5F5F5;
+  border-radius: 12rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.2s;
+}
+
+.picker-item:active {
+  opacity: 0.7;
+}
+
+.picker-item--selected {
+  background: #FFF3E0;
+  border-color: #8B4513;
+}
+
+.picker-item--selected .picker-label {
+  color: #8B4513;
+  font-weight: 600;
+}
+
+.picker-label {
+  font-size: 28rpx;
+  color: #333333;
+}

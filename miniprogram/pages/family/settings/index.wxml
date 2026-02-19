@@ -1,0 +1,86 @@
+<view class="container">
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- Family info -->
+    <view class="card">
+      <view class="section-title">家庭信息</view>
+      <view class="info-row">
+        <text class="info-label">名称</text>
+        <text class="info-value">{{family.name}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">成员数</text>
+        <text class="info-value">{{family.member_count || 0}} 人</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">存储</text>
+        <text class="info-value">{{family.storage_unlimited ? '无限制' : '500MB'}}</text>
+      </view>
+    </view>
+
+    <!-- Actions -->
+    <view class="card">
+      <view class="section-title">操作</view>
+      <view class="list-item" bindtap="onInvite">
+        <text class="item-title">邀请成员</text>
+        <view class="item-arrow"></view>
+      </view>
+      <view class="list-item" bindtap="onApprovals">
+        <text class="item-title">加入审批</text>
+        <view class="item-arrow"></view>
+      </view>
+      <view class="list-item" bindtap="onGenerateShareLink">
+        <text class="item-title">生成分享链接</text>
+        <view class="item-arrow"></view>
+      </view>
+      <view class="list-item" bindtap="onEditHistory" wx:if="{{myRole === 'owner'}}">
+        <text class="item-title">编辑历史</text>
+        <view class="item-arrow"></view>
+      </view>
+    </view>
+
+    <!-- Members -->
+    <view class="card">
+      <view class="section-title">家庭成员</view>
+      <view
+        class="list-item member-item"
+        wx:for="{{members}}"
+        wx:key="_id"
+      >
+        <image
+          class="avatar avatar-sm"
+          src="{{item.avatar_url || '/static/icons/default-avatar.png'}}"
+          mode="aspectFill"
+        />
+        <view class="item-content">
+          <text class="item-title">{{item.nickname || '未知用户'}}</text>
+          <text class="tag {{item.role === 'owner' ? 'tag-owner' : ''}}">
+            {{item.role === 'owner' ? '创建者' : item.role === 'restricted' ? '受限' : '成员'}}
+          </text>
+        </view>
+        <view
+          wx:if="{{myRole === 'owner' && item.role !== 'owner'}}"
+          class="role-action"
+          data-user-id="{{item.user_id}}"
+          data-current-role="{{item.role}}"
+          bindtap="onChangeRole"
+        >
+          <text class="role-action-text">
+            {{item.role === 'member' ? '设为受限' : '设为成员'}}
+          </text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Danger zone -->
+    <view class="card danger-zone">
+      <view class="section-title danger-title">危险操作</view>
+      <view class="btn-danger" bindtap="{{myRole === 'owner' ? 'onDeleteFamily' : 'onLeaveFamily'}}">
+        {{myRole === 'owner' ? '删除家庭' : '退出家庭'}}
+      </view>
+    </view>
+  </block>
+</view>

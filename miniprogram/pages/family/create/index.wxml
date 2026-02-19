@@ -1,0 +1,62 @@
+<view class="container">
+  <view class="card">
+    <view class="form-group">
+      <text class="form-label">家庭名称</text>
+      <input
+        class="form-input"
+        placeholder="例如：张氏家族"
+        value="{{familyName}}"
+        bindinput="onFamilyNameInput"
+        maxlength="20"
+      />
+    </view>
+
+    <view class="divider"></view>
+
+    <view class="section-title">您的信息</view>
+
+    <view class="form-group">
+      <text class="form-label">姓名</text>
+      <input
+        class="form-input"
+        placeholder="请输入您的姓名"
+        value="{{personName}}"
+        bindinput="onPersonNameInput"
+        maxlength="20"
+      />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">性别</text>
+      <radio-group class="gender-group" bindchange="onGenderChange">
+        <label class="gender-option {{gender === 'male' ? 'gender-active' : ''}}">
+          <radio value="male" checked="{{gender === 'male'}}" color="#8B4513" />
+          <text>男</text>
+        </label>
+        <label class="gender-option {{gender === 'female' ? 'gender-active' : ''}}">
+          <radio value="female" checked="{{gender === 'female'}}" color="#8B4513" />
+          <text>女</text>
+        </label>
+      </radio-group>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">出生年份（选填）</text>
+      <input
+        class="form-input"
+        type="number"
+        placeholder="例如：1990"
+        value="{{birthYear}}"
+        bindinput="onBirthYearInput"
+        maxlength="4"
+      />
+    </view>
+  </view>
+
+  <view
+    class="{{submitting ? 'btn-disabled' : 'btn-primary'}} submit-btn"
+    bindtap="onSubmit"
+  >
+    {{submitting ? '创建中...' : '创建家庭'}}
+  </view>
+</view>

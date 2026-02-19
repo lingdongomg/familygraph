@@ -1,0 +1,128 @@
+<view class="container" wx:if="{{!loading}}">
+  <!-- Person header -->
+  <view class="card person-header">
+    <image
+      class="avatar avatar-lg"
+      src="{{person.avatar || '/static/icons/default-avatar.png'}}"
+      mode="aspectFill"
+    />
+    <view class="person-header-info">
+      <text class="person-name">{{person.name}}</text>
+      <text class="person-title" wx:if="{{person.custom_title}}">{{person.custom_title}}</text>
+      <view class="person-tags">
+        <text class="tag {{person.gender === 'male' ? 'tag-male' : 'tag-female'}}" wx:if="{{person.gender}}">
+          {{genderLabel}}
+        </text>
+        <text class="tag tag-deceased" wx:if="{{person.is_deceased}}">已故</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Shared fields section -->
+  <view class="card">
+    <view class="section-header">
+      <text class="section-title">基本信息</text>
+      <text class="edit-link" bindtap="onEditShared">编辑</text>
+    </view>
+
+    <view class="info-row">
+      <text class="info-label">性别</text>
+      <text class="info-value">{{genderLabel}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">出生年份</text>
+      <text class="info-value {{person.birth_year ? '' : 'info-empty'}}">{{person.birth_year || '未填写'}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">是否已故</text>
+      <text class="info-value">{{deceasedLabel}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">辈分</text>
+      <text class="info-value {{person.generation !== undefined ? '' : 'info-empty'}}">{{person.generation !== undefined ? '第' + person.generation + '代' : '未填写'}}</text>
+    </view>
+  </view>
+
+  <!-- Private overlay section -->
+  <view class="card">
+    <view class="section-header">
+      <text class="section-title">我的备注</text>
+      <text class="edit-link" bindtap="onEditPrivate">编辑</text>
+    </view>
+
+    <view class="info-row">
+      <text class="info-label">电话</text>
+      <text class="info-value {{person.phone ? '' : 'info-empty'}}">{{person.phone || '未填写'}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">微信号</text>
+      <text class="info-value {{person.wechat_id ? '' : 'info-empty'}}">{{person.wechat_id || '未填写'}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">生日</text>
+      <text class="info-value {{person.birth_date ? '' : 'info-empty'}}">{{person.birth_date || '未填写'}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">所在城市</text>
+      <text class="info-value {{person.city ? '' : 'info-empty'}}">{{person.city || '未填写'}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">职业</text>
+      <text class="info-value {{person.occupation ? '' : 'info-empty'}}">{{person.occupation || '未填写'}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">自定义称呼</text>
+      <text class="info-value {{person.custom_title ? '' : 'info-empty'}}">{{person.custom_title || '未填写'}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="info-row">
+      <text class="info-label">备注</text>
+      <text class="info-value {{person.remark ? '' : 'info-empty'}}">{{person.remark || '未填写'}}</text>
+    </view>
+  </view>
+
+  <!-- Photo album preview -->
+  <view class="card">
+    <view class="section-header">
+      <text class="section-title">相册</text>
+      <text class="edit-link" bindtap="onViewAlbum">查看全部</text>
+    </view>
+
+    <view class="photo-grid" wx:if="{{photos.length > 0}}">
+      <image
+        wx:for="{{photos}}"
+        wx:key="index"
+        class="photo-thumb"
+        src="{{item.thumb_url || item.url}}"
+        mode="aspectFill"
+        data-url="{{item.url}}"
+        bindtap="onPreviewPhoto"
+      />
+    </view>
+    <view class="empty-hint" wx:else>
+      <text class="info-empty">暂无照片</text>
+    </view>
+  </view>
+</view>
+
+<!-- Loading state -->
+<view class="loading-container" wx:if="{{loading}}">
+  <text class="loading-text">加载中...</text>
+</view>

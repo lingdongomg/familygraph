@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "添加成员",
+  "usingComponents": {
+    "relation-picker": "/components/relation-picker/index"
+  }
+}

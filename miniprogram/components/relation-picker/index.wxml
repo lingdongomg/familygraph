@@ -1,0 +1,17 @@
+<!--
+  relation-picker: A 2x5 grid of relation type buttons.
+  Highlights the currently selected relation type.
+-->
+<view class="relation-picker">
+  <view class="picker-grid">
+    <view
+      wx:for="{{relations}}"
+      wx:key="key"
+      class="picker-item {{selected === item.key ? 'picker-item--selected' : ''}}"
+      data-type="{{item.key}}"
+      bindtap="onSelect"
+    >
+      <text class="picker-label">{{item.label}}</text>
+    </view>
+  </view>
+</view>

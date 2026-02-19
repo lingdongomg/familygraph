@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "标记人物",
+  "usingComponents": {
+    "photo-tagger": "/components/photo-tagger/index"
+  }
+}

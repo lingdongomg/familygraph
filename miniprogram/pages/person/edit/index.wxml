@@ -1,0 +1,77 @@
+<view class="container" wx:if="{{!loading}}">
+  <view class="card">
+    <!-- Avatar -->
+    <view class="form-group avatar-section">
+      <text class="form-label">头像</text>
+      <view class="avatar-picker" bindtap="onChooseAvatar">
+        <image
+          class="avatar avatar-lg"
+          src="{{avatar || '/static/icons/default-avatar.png'}}"
+          mode="aspectFill"
+        />
+        <text class="avatar-hint">点击更换</text>
+      </view>
+    </view>
+
+    <!-- Name -->
+    <view class="form-group">
+      <text class="form-label">姓名</text>
+      <input
+        class="form-input"
+        placeholder="请输入姓名"
+        value="{{name}}"
+        bindinput="onNameInput"
+        maxlength="20"
+      />
+    </view>
+
+    <!-- Gender -->
+    <view class="form-group">
+      <text class="form-label">性别</text>
+      <radio-group class="gender-group" bindchange="onGenderChange">
+        <label class="gender-option">
+          <radio value="male" checked="{{gender === 'male'}}" color="#8B4513" />
+          <text>男</text>
+        </label>
+        <label class="gender-option">
+          <radio value="female" checked="{{gender === 'female'}}" color="#8B4513" />
+          <text>女</text>
+        </label>
+      </radio-group>
+    </view>
+
+    <!-- Birth year -->
+    <view class="form-group">
+      <text class="form-label">出生年份</text>
+      <input
+        class="form-input"
+        type="number"
+        placeholder="如 1990（选填）"
+        value="{{birthYear}}"
+        bindinput="onBirthYearInput"
+        maxlength="4"
+      />
+    </view>
+
+    <!-- Is deceased -->
+    <view class="form-group">
+      <view class="switch-row">
+        <text class="form-label">已故</text>
+        <switch checked="{{isDeceased}}" bindchange="onDeceasedChange" color="#8B4513" />
+      </view>
+    </view>
+  </view>
+
+  <!-- Save button -->
+  <view
+    class="{{submitting || !name ? 'btn-disabled' : 'btn-primary'}} submit-btn"
+    bindtap="onSubmit"
+  >
+    保存
+  </view>
+</view>
+
+<!-- Loading state -->
+<view class="loading-container" wx:if="{{loading}}">
+  <text class="loading-text">加载中...</text>
+</view>

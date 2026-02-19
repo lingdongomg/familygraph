@@ -1,0 +1,239 @@
+/* 全局样式 */
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  color: #333333;
+  background-color: #F5F5F5;
+  box-sizing: border-box;
+}
+
+/* 通用容器 */
+.container {
+  padding: 30rpx;
+  min-height: 100vh;
+}
+
+/* 卡片样式 */
+.card {
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 按钮样式 */
+.btn-primary {
+  background: #8B4513;
+  color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.btn-primary:active {
+  opacity: 0.8;
+}
+
+.btn-secondary {
+  background: #FFFFFF;
+  color: #8B4513;
+  border: 2rpx solid #8B4513;
+  border-radius: 12rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  font-size: 32rpx;
+}
+
+.btn-danger {
+  background: #E53935;
+  color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  font-size: 32rpx;
+}
+
+.btn-disabled {
+  background: #CCCCCC;
+  color: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  font-size: 32rpx;
+}
+
+/* 表单样式 */
+.form-group {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+  display: block;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  border: 2rpx solid #E0E0E0;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #8B4513;
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background: #E0E0E0;
+  margin: 24rpx 0;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 60rpx;
+}
+
+.empty-state .empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-state .empty-text {
+  font-size: 30rpx;
+  color: #999999;
+  text-align: center;
+}
+
+.empty-state .empty-hint {
+  font-size: 26rpx;
+  color: #BBBBBB;
+  text-align: center;
+  margin-top: 12rpx;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.loading-text {
+  font-size: 26rpx;
+  color: #999999;
+  margin-top: 20rpx;
+}
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  margin-right: 12rpx;
+}
+
+.tag-male {
+  background: #E3F2FD;
+  color: #1565C0;
+}
+
+.tag-female {
+  background: #FCE4EC;
+  color: #C62828;
+}
+
+.tag-owner {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+/* 头像 */
+.avatar {
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar-sm {
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.avatar-md {
+  width: 96rpx;
+  height: 96rpx;
+}
+
+.avatar-lg {
+  width: 128rpx;
+  height: 128rpx;
+}
+
+/* 列表项 */
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 30rpx;
+  background: #FFFFFF;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item .item-content {
+  flex: 1;
+  margin-left: 20rpx;
+}
+
+.list-item .item-title {
+  font-size: 30rpx;
+  color: #333333;
+}
+
+.list-item .item-subtitle {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 6rpx;
+}
+
+.list-item .item-arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 3rpx solid #CCCCCC;
+  border-right: 3rpx solid #CCCCCC;
+  transform: rotate(45deg);
+}
+
+/* 区域标题 */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 20rpx;
+}
+
+.section-subtitle {
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 20rpx;
+}

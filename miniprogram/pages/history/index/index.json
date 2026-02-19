@@ -1,0 +1,5 @@
+{
+  "navigationBarTitleText": "编辑历史",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 100
+}

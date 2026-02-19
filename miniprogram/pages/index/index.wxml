@@ -1,0 +1,45 @@
+<view class="container">
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- Family list -->
+  <block wx:elif="{{families.length > 0}}">
+    <view class="section-title">我的家庭</view>
+
+    <view
+      class="card family-card"
+      wx:for="{{families}}"
+      wx:key="_id"
+      data-id="{{item._id}}"
+      bindtap="onEnterFamily"
+    >
+      <view class="family-card-header">
+        <text class="family-name">{{item.name}}</text>
+        <view class="item-arrow"></view>
+      </view>
+      <view class="family-card-meta">
+        <text class="family-member-count">{{item.member_count || 0}} 位成员</text>
+      </view>
+    </view>
+
+    <view class="action-row">
+      <view class="btn-secondary action-btn" bindtap="onCreateFamily">创建家庭</view>
+      <view class="btn-secondary action-btn" bindtap="onJoinFamily">加入家庭</view>
+    </view>
+  </block>
+
+  <!-- Empty state -->
+  <view class="empty-state" wx:else>
+    <image class="empty-icon" src="/static/icons/family-empty.png" mode="aspectFit"></image>
+    <text class="empty-text">还没有加入任何家庭</text>
+    <text class="empty-hint">创建或加入一个家庭，开始记录亲情</text>
+
+    <view class="empty-actions">
+      <view class="btn-primary empty-btn" bindtap="onCreateFamily">创建家庭</view>
+      <view class="btn-secondary empty-btn" bindtap="onJoinFamily">加入家庭</view>
+    </view>
+  </view>
+</view>

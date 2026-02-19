@@ -1,0 +1,84 @@
+<view class="container share-view-page">
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- Error state -->
+  <view class="error-container" wx:elif="{{error}}">
+    <view class="error-icon-circle">
+      <text class="error-icon-text">!</text>
+    </view>
+    <text class="error-message">{{errorMessage}}</text>
+    <view class="btn-secondary error-retry-btn" bindtap="onRetry">
+      <text>重试</text>
+    </view>
+  </view>
+
+  <!-- Content -->
+  <block wx:else>
+    <!-- Family name header -->
+    <view class="family-header card">
+      <text class="family-name">{{familyName}}</text>
+      <text class="family-subtitle">家庭图谱分享</text>
+    </view>
+
+    <!-- Graph section -->
+    <view class="graph-section card" wx:if="{{persons.length > 0}}">
+      <view class="section-title">关系图谱</view>
+      <view class="graph-area">
+        <family-graph
+          nodes="{{graphNodes}}"
+          edges="{{graphEdges}}"
+          titles="{{}}"
+          current-user-id=""
+          width="{{graphWidth}}"
+          height="{{graphHeight}}"
+        ></family-graph>
+      </view>
+    </view>
+
+    <!-- Person list section -->
+    <view class="person-list-section card">
+      <view class="section-title">家庭成员（{{persons.length}}）</view>
+
+      <view wx:if="{{persons.length === 0}}" class="empty-state">
+        <text class="empty-text">暂无成员信息</text>
+      </view>
+
+      <view
+        class="list-item person-item"
+        wx:for="{{persons}}"
+        wx:key="_id"
+      >
+        <view class="avatar avatar-md person-avatar-placeholder">
+          <image
+            wx:if="{{item.avatar}}"
+            src="{{item.avatar}}"
+            mode="aspectFill"
+            class="avatar avatar-md"
+          ></image>
+          <text wx:else class="avatar-initial">{{item.name[0] || '?'}}</text>
+        </view>
+        <view class="item-content">
+          <view class="person-title-row">
+            <text class="item-title">{{item.name}}</text>
+            <text class="tag {{item.gender === 'male' ? 'tag-male' : 'tag-female'}}">
+              {{item.gender === 'male' ? '男' : '女'}}
+            </text>
+            <text class="tag tag-deceased" wx:if="{{item.is_deceased}}">已故</text>
+          </view>
+          <text class="item-subtitle" wx:if="{{item.birth_year}}">{{item.birth_year}}年</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Join button -->
+    <view class="join-section">
+      <view class="btn-primary join-btn" bindtap="onJoinFamily">
+        <text>加入该家庭</text>
+      </view>
+    </view>
+  </block>
+</view>

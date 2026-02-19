@@ -1,0 +1,86 @@
+<view class="container history-page">
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- Empty state -->
+    <view class="empty-state" wx:if="{{records.length === 0}}">
+      <text class="empty-text">暂无编辑记录</text>
+      <text class="empty-hint">对成员进行创建、编辑或删除后，操作记录将显示在这里</text>
+    </view>
+
+    <!-- History records list -->
+    <view class="history-list" wx:else>
+      <view
+        class="history-card card {{item.is_rolled_back ? 'card-rolled-back' : ''}}"
+        wx:for="{{records}}"
+        wx:key="_id"
+      >
+        <!-- Card header: action badge + time -->
+        <view class="card-header">
+          <view class="action-badge action-{{item.action}}">
+            <text class="badge-text">{{item.actionLabel}}</text>
+          </view>
+          <text class="time-text">{{item.timeText}}</text>
+        </view>
+
+        <!-- Card body: person name + changes -->
+        <view class="card-body">
+          <view class="person-row">
+            <text class="person-label">成员：</text>
+            <text class="person-name">{{item.personName}}</text>
+          </view>
+          <view class="changes-row" wx:if="{{item.changesSummary}}">
+            <text class="changes-text">{{item.changesSummary}}</text>
+          </view>
+        </view>
+
+        <!-- Field changes detail -->
+        <view class="field-changes" wx:if="{{item.field_changes && item.field_changes.length > 0}}">
+          <view
+            class="field-change-item"
+            wx:for="{{item.field_changes}}"
+            wx:for-item="change"
+            wx:key="field"
+          >
+            <text class="field-name">{{change.field_label || change.field}}</text>
+            <text class="field-arrow">:</text>
+            <text class="field-old" wx:if="{{change.old_value}}">{{change.old_value}}</text>
+            <text class="field-arrow-icon" wx:if="{{change.old_value && change.new_value}}"> -> </text>
+            <text class="field-new" wx:if="{{change.new_value}}">{{change.new_value}}</text>
+          </view>
+        </view>
+
+        <!-- Rolled back indicator -->
+        <view class="rolled-back-tag" wx:if="{{item.is_rolled_back}}">
+          <text class="rolled-back-text">已回滚</text>
+        </view>
+
+        <!-- Rollback button -->
+        <view class="card-footer" wx:if="{{item.snapshot_before && !item.is_rolled_back && item.action !== 'create'}}">
+          <view
+            class="rollback-btn {{rollingBackId === item._id ? 'btn-disabled' : ''}}"
+            data-record="{{item}}"
+            bindtap="onRollback"
+          >
+            <text>{{rollingBackId === item._id ? '回滚中...' : '回滚到此状态'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- Load more -->
+      <view class="load-more" wx:if="{{loadingMore}}">
+        <view class="loading-spinner loading-spinner-sm"></view>
+        <text class="loading-text">加载更多...</text>
+      </view>
+
+      <!-- No more data -->
+      <view class="no-more" wx:if="{{!hasMore && records.length > 0}}">
+        <text class="no-more-text">没有更多记录了</text>
+      </view>
+    </view>
+  </block>
+</view>

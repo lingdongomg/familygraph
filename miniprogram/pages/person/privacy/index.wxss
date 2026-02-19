@@ -1,0 +1,28 @@
+/* Date picker */
+.date-picker {
+  display: flex;
+  align-items: center;
+}
+
+.date-text {
+  color: #333333;
+  font-size: 28rpx;
+}
+
+.date-placeholder {
+  color: #BBBBBB;
+  font-size: 28rpx;
+}
+
+/* Remark textarea */
+.remark-textarea {
+  height: auto;
+  min-height: 160rpx;
+  padding: 20rpx;
+  line-height: 1.6;
+}
+
+/* Submit button */
+.submit-btn {
+  margin-top: 40rpx;
+}

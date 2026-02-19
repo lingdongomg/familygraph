@@ -1,0 +1,48 @@
+<!--
+  approval-card: Approval card for family join requests.
+  Shows applicant nickname, claimed person name, request time,
+  status badge, and approve/reject buttons when pending.
+-->
+<view class="approval-card card">
+  <!-- Header: applicant info -->
+  <view class="card-header">
+    <image
+      wx:if="{{request.applicant_avatar}}"
+      class="applicant-avatar avatar avatar-sm"
+      src="{{request.applicant_avatar}}"
+      mode="aspectFill"
+    />
+    <view wx:else class="applicant-avatar-placeholder avatar-sm">
+      <text class="avatar-initial">{{request.applicant_nickname ? request.applicant_nickname[0] : '?'}}</text>
+    </view>
+    <view class="applicant-info">
+      <text class="applicant-name">{{request.applicant_nickname || '未知用户'}}</text>
+      <text class="request-time">{{formatTime(request.created_at)}}</text>
+    </view>
+    <!-- Status badge -->
+    <view class="status-badge status-{{request.status || 'pending'}}">
+      <text wx:if="{{request.status === 'approved'}}">已通过</text>
+      <text wx:elif="{{request.status === 'rejected'}}">已拒绝</text>
+      <text wx:elif="{{request.status === 'expired'}}">已过期</text>
+      <text wx:else>待审批</text>
+    </view>
+  </view>
+
+  <!-- Body: claimed person -->
+  <view class="card-body">
+    <text class="claim-label">认领身份：</text>
+    <text class="claim-person">{{request.person_name || request.claimed_person_name || '未指定'}}</text>
+  </view>
+
+  <!-- Remark -->
+  <view wx:if="{{request.remark}}" class="card-remark">
+    <text class="remark-label">备注：</text>
+    <text class="remark-text">{{request.remark}}</text>
+  </view>
+
+  <!-- Action buttons (only when pending) -->
+  <view wx:if="{{!request.status || request.status === 'pending'}}" class="card-actions">
+    <view class="action-btn btn-reject" bindtap="onReject">拒绝</view>
+    <view class="action-btn btn-approve" bindtap="onApprove">通过</view>
+  </view>
+</view>

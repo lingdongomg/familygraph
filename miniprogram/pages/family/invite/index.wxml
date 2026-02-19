@@ -1,0 +1,41 @@
+<view class="container">
+  <view class="card invite-card">
+    <view class="invite-header">
+      <text class="section-title">邀请加入家庭</text>
+      <text class="family-name" wx:if="{{familyName}}">{{familyName}}</text>
+    </view>
+
+    <!-- Code display -->
+    <block wx:if="{{hasCode}}">
+      <view class="code-section">
+        <text class="code-label">邀请码</text>
+        <view class="code-display">
+          <text class="code-text">{{inviteCode}}</text>
+        </view>
+        <text class="code-expire">有效期至 {{expireAt}}</text>
+      </view>
+
+      <view class="action-row">
+        <view class="btn-primary" bindtap="onCopyCode">复制邀请码</view>
+      </view>
+
+      <view class="invite-hint">
+        <text class="hint-text">将邀请码分享给家人，对方在"加入家庭"页面输入即可申请加入</text>
+      </view>
+    </block>
+
+    <!-- Generate button -->
+    <block wx:else>
+      <view class="generate-section">
+        <text class="generate-hint">生成邀请码后分享给家人，邀请他们加入您的家庭</text>
+        <view class="btn-primary {{loading ? 'btn-disabled' : ''}}" bindtap="onGenerateCode">
+          {{loading ? '生成中...' : '生成邀请码'}}
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="tip-section">
+    <text class="tip-text">提示：每次生成新邀请码后，之前的邀请码将自动失效</text>
+  </view>
+</view>

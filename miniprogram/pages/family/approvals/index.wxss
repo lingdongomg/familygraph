@@ -1,0 +1,20 @@
+/* Approvals page styles */
+
+.approvals-page {
+  padding-bottom: 60rpx;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #E0E0E0;
+  border-top-color: #8B4513;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

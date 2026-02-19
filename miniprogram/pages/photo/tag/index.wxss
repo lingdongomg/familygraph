@@ -1,0 +1,155 @@
+/* Photo tag page styles */
+.tag-page {
+  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+}
+
+/* Photo section */
+.photo-section {
+  overflow: hidden;
+}
+
+.photo-section .section-title {
+  margin-bottom: 16rpx;
+  color: #8B4513;
+}
+
+/* Existing tags list */
+.tags-section .section-title {
+  margin-bottom: 16rpx;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.tag-item:last-child {
+  border-bottom: none;
+}
+
+.tag-item-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background-color: #8B4513;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.tag-item-name {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333333;
+}
+
+.tag-item-remove {
+  padding: 8rpx 20rpx;
+}
+
+.remove-text {
+  font-size: 26rpx;
+  color: #E53935;
+}
+
+/* Hint section */
+.hint-section {
+  padding: 60rpx 40rpx;
+  text-align: center;
+}
+
+.hint-text {
+  font-size: 26rpx;
+  color: #999999;
+  line-height: 1.6;
+}
+
+/* Person picker overlay */
+.picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.picker-panel {
+  width: 100%;
+  max-height: 70vh;
+  background-color: #FFFFFF;
+  border-radius: 24rpx 24rpx 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.picker-close {
+  padding: 8rpx 16rpx;
+}
+
+.picker-close-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+.picker-list {
+  flex: 1;
+  max-height: 60vh;
+  padding: 0 30rpx;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.picker-item:last-child {
+  border-bottom: none;
+}
+
+.picker-item:active {
+  background-color: #F9F3EC;
+}
+
+.picker-avatar {
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  background-color: #F0F0F0;
+}
+
+.picker-name {
+  font-size: 30rpx;
+  color: #333333;
+  flex: 1;
+}
+
+.picker-empty {
+  padding: 80rpx 0;
+  text-align: center;
+}
+
+.picker-empty-text {
+  font-size: 28rpx;
+  color: #999999;
+}

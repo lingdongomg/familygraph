@@ -1,0 +1,108 @@
+<view class="container" wx:if="{{!loading}}">
+  <view class="card">
+    <!-- Phone -->
+    <view class="form-group">
+      <text class="form-label">手机号</text>
+      <input
+        class="form-input"
+        type="number"
+        placeholder="请输入手机号"
+        value="{{phone}}"
+        bindinput="onPhoneInput"
+        maxlength="20"
+      />
+    </view>
+
+    <!-- WeChat ID -->
+    <view class="form-group">
+      <text class="form-label">微信号</text>
+      <input
+        class="form-input"
+        placeholder="请输入微信号"
+        value="{{wechatId}}"
+        bindinput="onWechatIdInput"
+        maxlength="40"
+      />
+    </view>
+
+    <!-- Birth date -->
+    <view class="form-group">
+      <text class="form-label">出生日期</text>
+      <picker
+        mode="date"
+        value="{{birthDate}}"
+        start="1900-01-01"
+        end="2030-12-31"
+        bindchange="onBirthDateChange"
+      >
+        <view class="form-input date-picker">
+          <text class="{{birthDate ? 'date-text' : 'date-placeholder'}}">
+            {{birthDate || '请选择出生日期'}}
+          </text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- City -->
+    <view class="form-group">
+      <text class="form-label">所在城市</text>
+      <input
+        class="form-input"
+        placeholder="请输入所在城市"
+        value="{{city}}"
+        bindinput="onCityInput"
+        maxlength="30"
+      />
+    </view>
+
+    <!-- Occupation -->
+    <view class="form-group">
+      <text class="form-label">职业</text>
+      <input
+        class="form-input"
+        placeholder="请输入职业"
+        value="{{occupation}}"
+        bindinput="onOccupationInput"
+        maxlength="30"
+      />
+    </view>
+
+    <!-- Custom title -->
+    <view class="form-group">
+      <text class="form-label">自定义称呼</text>
+      <input
+        class="form-input"
+        placeholder="请输入自定义称呼"
+        value="{{customTitle}}"
+        bindinput="onCustomTitleInput"
+        maxlength="20"
+      />
+    </view>
+
+    <!-- Remark -->
+    <view class="form-group">
+      <text class="form-label">备注</text>
+      <textarea
+        class="form-input remark-textarea"
+        placeholder="请输入备注信息"
+        value="{{remark}}"
+        bindinput="onRemarkInput"
+        maxlength="500"
+        auto-height
+      />
+    </view>
+  </view>
+
+  <!-- Save button -->
+  <view
+    class="{{submitting ? 'btn-disabled' : 'btn-primary'}} submit-btn"
+    bindtap="onSubmit"
+  >
+    保存
+  </view>
+</view>
+
+<!-- Loading state -->
+<view class="loading-container" wx:if="{{loading}}">
+  <text class="loading-text">加载中...</text>
+</view>

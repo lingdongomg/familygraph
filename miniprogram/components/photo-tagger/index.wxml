@@ -1,0 +1,38 @@
+<!--
+  photo-tagger: Photo with overlay tag dots.
+  Tap on the image to place a new tag (when editable).
+  Tap on an existing dot to view/edit that tag.
+-->
+<view class="photo-tagger">
+  <view class="tagger-image-wrap" bindtap="onImageTap">
+    <!-- Photo -->
+    <image
+      class="tagger-image"
+      src="{{src}}"
+      mode="widthFix"
+      bindload="onImageLoad"
+    />
+
+    <!-- Existing tag dots -->
+    <view
+      wx:for="{{tags}}"
+      wx:key="_id"
+      class="tag-dot"
+      style="left:{{item.x}}%;top:{{item.y}}%;"
+      data-id="{{item._id}}"
+      catchtap="onTagTap"
+    >
+      <view class="tag-dot-inner"></view>
+      <text wx:if="{{item.person_name}}" class="tag-dot-label">{{item.person_name}}</text>
+    </view>
+
+    <!-- Pending tag (uncommitted) -->
+    <view
+      wx:if="{{pendingTag}}"
+      class="tag-dot tag-dot--pending"
+      style="left:{{pendingTag.x}}%;top:{{pendingTag.y}}%;"
+    >
+      <view class="tag-dot-inner tag-dot-inner--pending"></view>
+    </view>
+  </view>
+</view>

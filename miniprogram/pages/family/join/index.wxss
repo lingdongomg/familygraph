@@ -1,0 +1,83 @@
+/* Join family page styles */
+
+/* Invite code input styling */
+.invite-code-input {
+  font-size: 36rpx;
+  letter-spacing: 16rpx;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Submit button spacing */
+.submit-btn {
+  margin-top: 40rpx;
+}
+
+/* Back button spacing */
+.back-btn {
+  margin-top: 24rpx;
+}
+
+/* Family info header in step 2 */
+.family-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.family-name-label {
+  font-size: 28rpx;
+  color: #666666;
+  margin-right: 16rpx;
+}
+
+.family-name-value {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+/* Person list */
+.person-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.person-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+  background: #FAFAFA;
+  transition: background 0.2s;
+}
+
+.person-item-active {
+  background: #FFF8F0;
+  border: 2rpx solid #8B4513;
+}
+
+.person-info {
+  margin-left: 16rpx;
+  flex: 1;
+}
+
+.person-name {
+  font-size: 30rpx;
+  color: #333333;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.person-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.person-birth-year {
+  font-size: 24rpx;
+  color: #999999;
+}

@@ -1,0 +1,88 @@
+<view class="container home-page">
+  <!-- Loading state -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- Settings icon -->
+    <view class="settings-icon" bindtap="onSettings">
+      <image src="/static/icons/settings.png" mode="aspectFit" class="icon-img"></image>
+    </view>
+
+    <!-- Tab bar -->
+    <view class="tab-bar">
+      <view
+        class="tab-item {{activeTab === 'graph' ? 'tab-active' : ''}}"
+        data-tab="graph"
+        bindtap="onTabChange"
+      >
+        <text>图谱</text>
+      </view>
+      <view
+        class="tab-item {{activeTab === 'list' ? 'tab-active' : ''}}"
+        data-tab="list"
+        bindtap="onTabChange"
+      >
+        <text>列表</text>
+      </view>
+    </view>
+
+    <!-- Graph view -->
+    <view class="graph-area" wx:if="{{activeTab === 'graph'}}">
+      <family-graph
+        nodes="{{graphNodes}}"
+        edges="{{graphEdges}}"
+        titles="{{graphTitles}}"
+        current-user-id="{{currentUserId}}"
+        width="{{375}}"
+        height="{{500}}"
+        bind:nodetap="onNodeTap"
+      ></family-graph>
+    </view>
+
+    <!-- List view -->
+    <view class="member-list" wx:if="{{activeTab === 'list'}}">
+      <view class="section-title">家庭成员（{{members.length}}）</view>
+
+      <view wx:if="{{members.length === 0}}" class="empty-state">
+        <text class="empty-text">还没有成员</text>
+        <text class="empty-hint">点击下方按钮添加第一位成员</text>
+      </view>
+
+      <view
+        class="list-item member-item"
+        wx:for="{{members}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="onMemberTap"
+      >
+        <view class="avatar avatar-md member-avatar-placeholder">
+          <image
+            wx:if="{{item.avatar}}"
+            src="{{item.avatar}}"
+            mode="aspectFill"
+            class="avatar avatar-md"
+          ></image>
+          <text wx:else class="avatar-text">{{item.name[0] || '?'}}</text>
+        </view>
+        <view class="item-content">
+          <view class="item-title-row">
+            <text class="item-title">{{item.name}}</text>
+            <text class="tag {{item.gender === 'male' ? 'tag-male' : 'tag-female'}}">
+              {{item.gender === 'male' ? '男' : '女'}}
+            </text>
+          </view>
+          <text class="item-subtitle" wx:if="{{item.birth_year}}">{{item.birth_year}}年</text>
+        </view>
+        <view class="item-arrow"></view>
+      </view>
+    </view>
+
+    <!-- Floating add button -->
+    <view class="fab" bindtap="onAddMember">
+      <text class="fab-icon">+</text>
+    </view>
+  </block>
+</view>

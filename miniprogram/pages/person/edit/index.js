@@ -1,0 +1,136 @@
+const api = require('../../../utils/api')
+const auth = require('../../../utils/auth')
+const { GENDER } = require('../../../utils/constants')
+
+Page({
+  data: {
+    personId: '',
+    familyId: '',
+    name: '',
+    gender: GENDER.MALE,
+    birthYear: '',
+    isDeceased: false,
+    avatar: '',
+    loading: true,
+    submitting: false
+  },
+
+  onLoad(options) {
+    const { person_id, family_id } = options
+    if (!person_id || !family_id) {
+      api.showError('缺少必要参数')
+      wx.navigateBack()
+      return
+    }
+
+    this.setData({
+      personId: person_id,
+      familyId: family_id
+    })
+
+    this.loadPerson()
+  },
+
+  async loadPerson() {
+    try {
+      await auth.ensureLogin()
+      const person = await api.callFunction('person/getDetail', {
+        person_id: this.data.personId,
+        family_id: this.data.familyId
+      })
+
+      this.setData({
+        name: person.name || '',
+        gender: person.gender || GENDER.MALE,
+        birthYear: person.birth_year ? String(person.birth_year) : '',
+        isDeceased: !!person.is_deceased,
+        avatar: person.avatar || '',
+        loading: false
+      })
+    } catch (err) {
+      api.showError(err)
+      this.setData({ loading: false })
+    }
+  },
+
+  onNameInput(e) {
+    this.setData({ name: e.detail.value })
+  },
+
+  onGenderChange(e) {
+    this.setData({ gender: e.detail.value })
+  },
+
+  onBirthYearInput(e) {
+    this.setData({ birthYear: e.detail.value })
+  },
+
+  onDeceasedChange(e) {
+    this.setData({ isDeceased: e.detail.value })
+  },
+
+  async onChooseAvatar() {
+    try {
+      const res = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count: 1,
+          mediaType: ['image'],
+          sourceType: ['album', 'camera'],
+          sizeType: ['compressed'],
+          success: resolve,
+          fail: reject
+        })
+      })
+
+      const tempFilePath = res.tempFiles[0].tempFilePath
+
+      wx.showLoading({ title: '上传中...', mask: true })
+
+      const cloudPath = `avatars/${this.data.familyId}/${this.data.personId}_${Date.now()}.jpg`
+      const uploadRes = await wx.cloud.uploadFile({
+        cloudPath,
+        filePath: tempFilePath
+      })
+
+      this.setData({ avatar: uploadRes.fileID })
+      wx.hideLoading()
+    } catch (err) {
+      wx.hideLoading()
+      if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
+      api.showError('上传头像失败')
+    }
+  },
+
+  async onSubmit() {
+    const { name, gender, birthYear, isDeceased, avatar, personId, familyId } = this.data
+
+    if (!name.trim()) {
+      api.showError('请输入姓名')
+      return
+    }
+
+    this.setData({ submitting: true })
+
+    try {
+      await auth.ensureLogin()
+      await api.callWithLoading('person/update', {
+        person_id: personId,
+        family_id: familyId,
+        name: name.trim(),
+        gender,
+        birth_year: birthYear ? parseInt(birthYear) : null,
+        is_deceased: isDeceased,
+        avatar: avatar || null
+      }, '保存中...')
+
+      api.showSuccess('保存成功')
+      setTimeout(() => {
+        wx.navigateBack()
+      }, 1500)
+    } catch (err) {
+      api.showError(err)
+    } finally {
+      this.setData({ submitting: false })
+    }
+  }
+})

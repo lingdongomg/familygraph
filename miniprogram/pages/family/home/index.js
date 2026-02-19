@@ -1,0 +1,98 @@
+const api = require('../../../utils/api')
+const auth = require('../../../utils/auth')
+
+Page({
+  data: {
+    familyId: '',
+    family: null,
+    members: [],
+    // Graph data
+    graphNodes: [],
+    graphEdges: [],
+    graphTitles: {},
+    currentUserId: '',
+    loading: true,
+    activeTab: 'graph' // 'graph' or 'list'
+  },
+
+  onLoad(options) {
+    if (options.family_id) {
+      this.setData({ familyId: options.family_id })
+    }
+  },
+
+  onShow() {
+    if (this.data.familyId) {
+      this.loadData()
+    }
+  },
+
+  async loadData() {
+    this.setData({ loading: true })
+    try {
+      const user = await auth.ensureLogin()
+
+      const [family, membersResult, graphData] = await Promise.all([
+        api.callFunction('family/getDetail', { family_id: this.data.familyId }),
+        api.callFunction('person/list', { family_id: this.data.familyId }),
+        api.callFunction('relationship/getGraph', { family_id: this.data.familyId })
+      ])
+
+      wx.setNavigationBarTitle({ title: family.name || '家庭' })
+
+      const members = Array.isArray(membersResult) ? membersResult : (membersResult.members || membersResult || [])
+
+      this.setData({
+        family,
+        members,
+        graphNodes: graphData.nodes || [],
+        graphEdges: graphData.edges || [],
+        graphTitles: graphData.titles || {},
+        currentUserId: user.openid_hash || '',
+        loading: false
+      })
+    } catch (err) {
+      api.showError(err)
+      this.setData({ loading: false })
+    }
+  },
+
+  onTabChange(e) {
+    const tab = e.currentTarget.dataset.tab
+    this.setData({ activeTab: tab })
+  },
+
+  onMemberTap(e) {
+    const personId = e.currentTarget.dataset.id
+    wx.navigateTo({
+      url: `/pages/person/detail/index?person_id=${personId}&family_id=${this.data.familyId}`
+    })
+  },
+
+  onNodeTap(e) {
+    const personId = e.detail.personId
+    if (personId) {
+      wx.navigateTo({
+        url: `/pages/person/detail/index?person_id=${personId}&family_id=${this.data.familyId}`
+      })
+    }
+  },
+
+  onAddMember() {
+    wx.navigateTo({
+      url: `/pages/person/create/index?family_id=${this.data.familyId}`
+    })
+  },
+
+  onSettings() {
+    wx.navigateTo({
+      url: `/pages/family/settings/index?family_id=${this.data.familyId}`
+    })
+  },
+
+  onShareTap() {
+    wx.navigateTo({
+      url: `/pages/family/invite/index?family_id=${this.data.familyId}`
+    })
+  }
+})

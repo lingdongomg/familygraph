@@ -1,0 +1,79 @@
+<view class="container">
+  <!-- Relation prompt -->
+  <view class="card relation-prompt">
+    <text class="prompt-text">他/她是 </text>
+    <text class="prompt-name">{{referencePersonName}}</text>
+    <text class="prompt-text"> 的...</text>
+  </view>
+
+  <!-- Relation picker -->
+  <view class="card">
+    <view class="section-title">选择关系</view>
+    <relation-picker
+      relation-types="{{relationTypes}}"
+      selected="{{selectedRelation}}"
+      bind:select="onRelationSelect"
+    />
+  </view>
+
+  <!-- Person info form -->
+  <view class="card">
+    <view class="section-title">基本信息</view>
+
+    <!-- Name -->
+    <view class="form-group">
+      <text class="form-label">姓名</text>
+      <input
+        class="form-input"
+        placeholder="请输入姓名"
+        value="{{name}}"
+        bindinput="onNameInput"
+        maxlength="20"
+      />
+    </view>
+
+    <!-- Gender -->
+    <view class="form-group">
+      <text class="form-label">性别</text>
+      <radio-group class="gender-group" bindchange="onGenderChange">
+        <label class="gender-option">
+          <radio value="male" checked="{{gender === 'male'}}" color="#8B4513" />
+          <text>男</text>
+        </label>
+        <label class="gender-option">
+          <radio value="female" checked="{{gender === 'female'}}" color="#8B4513" />
+          <text>女</text>
+        </label>
+      </radio-group>
+    </view>
+
+    <!-- Birth year -->
+    <view class="form-group">
+      <text class="form-label">出生年份</text>
+      <input
+        class="form-input"
+        type="number"
+        placeholder="如 1990（选填）"
+        value="{{birthYear}}"
+        bindinput="onBirthYearInput"
+        maxlength="4"
+      />
+    </view>
+
+    <!-- Is deceased -->
+    <view class="form-group">
+      <view class="switch-row">
+        <text class="form-label">已故</text>
+        <switch checked="{{isDeceased}}" bindchange="onDeceasedChange" color="#8B4513" />
+      </view>
+    </view>
+  </view>
+
+  <!-- Submit -->
+  <view
+    class="{{submitting || !name || !selectedRelation ? 'btn-disabled' : 'btn-primary'}} submit-btn"
+    bindtap="onSubmit"
+  >
+    添加成员
+  </view>
+</view>
