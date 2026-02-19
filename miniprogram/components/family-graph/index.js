@@ -28,8 +28,8 @@ Component({
     edges: { type: Array, value: [] },
     titles: { type: Object, value: {} },
     currentUserId: { type: String, value: '' },
-    width: { type: Number, value: 375 },
-    height: { type: Number, value: 500 }
+    width: { type: Number, value: 750 },
+    height: { type: Number, value: 1000 }
   },
 
   data: {
@@ -79,12 +79,15 @@ Component({
           var ctx = canvas.getContext('2d')
           var dpr = wx.getWindowInfo().pixelRatio
 
-          canvas.width = res[0].width * dpr
-          canvas.height = res[0].height * dpr
+          var w = res[0].width
+          var h = res[0].height
+
+          canvas.width = w * dpr
+          canvas.height = h * dpr
           ctx.scale(dpr, dpr)
 
           self.canvas = canvas
-          self.setData({ ctx: ctx, dpr: dpr })
+          self.setData({ ctx: ctx, dpr: dpr, width: w, height: h })
           self.buildGraph()
         })
     },

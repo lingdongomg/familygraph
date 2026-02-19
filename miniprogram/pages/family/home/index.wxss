@@ -59,7 +59,7 @@
 /* Graph area */
 .graph-area {
   width: 100%;
-  height: 600rpx;
+  height: 80vh;
   background: #FFFFFF;
   border-radius: 16rpx;
   overflow: hidden;

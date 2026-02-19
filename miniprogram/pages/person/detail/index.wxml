@@ -42,12 +42,6 @@
       <text class="info-label">是否已故</text>
       <text class="info-value">{{deceasedLabel}}</text>
     </view>
-    <view class="divider"></view>
-
-    <view class="info-row">
-      <text class="info-label">辈分</text>
-      <text class="info-value {{person.generation !== undefined ? '' : 'info-empty'}}">{{person.generation !== undefined ? '第' + person.generation + '代' : '未填写'}}</text>
-    </view>
   </view>
 
   <!-- Private overlay section -->

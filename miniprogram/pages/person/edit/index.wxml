@@ -75,3 +75,11 @@
 <view class="loading-container" wx:if="{{loading}}">
   <text class="loading-text">加载中...</text>
 </view>
+
+<!-- Image cropper overlay -->
+<image-cropper
+  wx:if="{{cropping}}"
+  src="{{cropSrc}}"
+  bind:confirm="onCropConfirm"
+  bind:cancel="onCropCancel"
+/>

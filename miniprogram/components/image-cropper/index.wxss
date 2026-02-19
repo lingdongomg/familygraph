@@ -1,0 +1,77 @@
+.cropper-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+}
+
+.cropper-canvas {
+  width: 100vw;
+  height: calc(100vh - 120rpx);
+}
+
+.cropper-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 120rpx);
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.mask-top,
+.mask-bottom {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.mask-middle {
+  display: flex;
+  flex-direction: row;
+  height: 75vw;
+}
+
+.mask-side {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.crop-box {
+  width: 75vw;
+  height: 75vw;
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
+}
+
+.cropper-toolbar {
+  height: 120rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 60rpx;
+  background: #000000;
+}
+
+.toolbar-btn {
+  padding: 16rpx 48rpx;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+}
+
+.toolbar-cancel text {
+  color: #FFFFFF;
+}
+
+.toolbar-confirm {
+  background: #8B4513;
+}
+
+.toolbar-confirm text {
+  color: #FFFFFF;
+}

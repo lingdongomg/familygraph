@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "编辑信息"
+  "navigationBarTitleText": "编辑信息",
+  "usingComponents": {
+    "image-cropper": "/components/image-cropper/index"
+  }
 }

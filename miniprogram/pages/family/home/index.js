@@ -71,11 +71,41 @@ Page({
 
   onNodeTap(e) {
     const personId = e.detail.personId
-    if (personId) {
+    if (!personId) return
+
+    const { members, familyId } = this.data
+
+    // Find the current user's bound person in this family
+    const myPerson = members.find(m => m.bound_user_id === this.data.currentUserId)
+
+    if (!myPerson || myPerson._id === personId) {
+      // Not bound or tapped self — go straight to detail
       wx.navigateTo({
-        url: `/pages/person/detail/index?person_id=${personId}&family_id=${this.data.familyId}`
+        url: `/pages/person/detail/index?person_id=${personId}&family_id=${familyId}`
       })
+      return
     }
+
+    // Compute relationship title, then navigate
+    api.callFunction('relationship/computeTitle', {
+      family_id: familyId,
+      from_person_id: myPerson._id,
+      to_person_id: personId
+    }).then(result => {
+      const title = result && (result.formal_title || result.title)
+      if (title) {
+        wx.showToast({ title: title, icon: 'none', duration: 2000 })
+      }
+      setTimeout(() => {
+        wx.navigateTo({
+          url: `/pages/person/detail/index?person_id=${personId}&family_id=${familyId}`
+        })
+      }, title ? 1500 : 0)
+    }).catch(() => {
+      wx.navigateTo({
+        url: `/pages/person/detail/index?person_id=${personId}&family_id=${familyId}`
+      })
+    })
   },
 
   onAddMember() {

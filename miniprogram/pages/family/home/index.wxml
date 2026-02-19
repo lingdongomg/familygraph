@@ -36,8 +36,6 @@
         edges="{{graphEdges}}"
         titles="{{graphTitles}}"
         current-user-id="{{currentUserId}}"
-        width="{{375}}"
-        height="{{500}}"
         bind:nodetap="onNodeTap"
       ></family-graph>
     </view>

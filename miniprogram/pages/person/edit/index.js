@@ -12,7 +12,9 @@ Page({
     isDeceased: false,
     avatar: '',
     loading: true,
-    submitting: false
+    submitting: false,
+    cropping: false,
+    cropSrc: ''
   },
 
   onLoad(options) {
@@ -83,7 +85,18 @@ Page({
       })
 
       const tempFilePath = res.tempFiles[0].tempFilePath
+      this.setData({ cropping: true, cropSrc: tempFilePath })
+    } catch (err) {
+      if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
+      api.showError('选择图片失败')
+    }
+  },
 
+  async onCropConfirm(e) {
+    const tempFilePath = e.detail.tempFilePath
+    this.setData({ cropping: false, cropSrc: '' })
+
+    try {
       wx.showLoading({ title: '上传中...', mask: true })
 
       const cloudPath = `avatars/${this.data.familyId}/${this.data.personId}_${Date.now()}.jpg`
@@ -96,9 +109,12 @@ Page({
       wx.hideLoading()
     } catch (err) {
       wx.hideLoading()
-      if (err.errMsg && err.errMsg.indexOf('cancel') > -1) return
       api.showError('上传头像失败')
     }
+  },
+
+  onCropCancel() {
+    this.setData({ cropping: false, cropSrc: '' })
   },
 
   async onSubmit() {

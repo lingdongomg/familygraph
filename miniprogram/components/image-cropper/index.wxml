@@ -1,0 +1,27 @@
+<view class="cropper-container">
+  <canvas
+    type="2d"
+    id="cropperCanvas"
+    class="cropper-canvas"
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+  ></canvas>
+  <view class="cropper-mask">
+    <view class="mask-top"></view>
+    <view class="mask-middle">
+      <view class="mask-side"></view>
+      <view class="crop-box"></view>
+      <view class="mask-side"></view>
+    </view>
+    <view class="mask-bottom"></view>
+  </view>
+  <view class="cropper-toolbar">
+    <view class="toolbar-btn toolbar-cancel" bindtap="onCancel">
+      <text>取消</text>
+    </view>
+    <view class="toolbar-btn toolbar-confirm" bindtap="onConfirm">
+      <text>确认</text>
+    </view>
+  </view>
+</view>
