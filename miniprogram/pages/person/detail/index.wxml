@@ -5,6 +5,7 @@
       class="avatar avatar-lg"
       src="{{person.avatar || '/static/icons/default-avatar.png'}}"
       mode="aspectFill"
+      bindtap="onEditShared"
     />
     <view class="person-header-info">
       <text class="person-name">{{person.name}}</text>

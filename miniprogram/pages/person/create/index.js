@@ -77,7 +77,7 @@ Page({
   },
 
   onRelationSelect(e) {
-    this.setData({ selectedRelation: e.detail.value })
+    this.setData({ selectedRelation: e.detail.type })
   },
 
   async onSubmit() {

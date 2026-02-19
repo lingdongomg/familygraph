@@ -100,7 +100,7 @@ Page({
         file_id: uploadRes.fileID,
         width: compressed.width,
         height: compressed.height,
-        size: compressed.size
+        file_size: compressed.size
       })
 
       wx.hideLoading()
