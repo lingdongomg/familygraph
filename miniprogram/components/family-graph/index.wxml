@@ -5,6 +5,7 @@
 <canvas
   type="2d"
   id="familyGraph"
+  class="graph-canvas"
   style="width:{{width}}px;height:{{height}}px;"
   bindtouchstart="onTouchStart"
   bindtouchmove="onTouchMove"

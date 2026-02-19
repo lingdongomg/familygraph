@@ -77,7 +77,7 @@ Component({
           if (!res || !res[0]) return
           var canvas = res[0].node
           var ctx = canvas.getContext('2d')
-          var dpr = wx.getSystemInfoSync().pixelRatio
+          var dpr = wx.getWindowInfo().pixelRatio
 
           canvas.width = res[0].width * dpr
           canvas.height = res[0].height * dpr

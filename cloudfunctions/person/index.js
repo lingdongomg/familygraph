@@ -40,11 +40,17 @@ async function create(params) {
     reference_person_id, relation_type
   } = params
 
-  if (!family_id || !name || !gender || !reference_person_id || !relation_type) {
+  if (!family_id || !name || !gender) {
     return fail('缺少必填参数')
   }
 
-  if (!RELATION_TYPES.includes(relation_type)) {
+  // If reference provided, relation_type is also required
+  const isFirstMember = !reference_person_id
+  if (!isFirstMember && !relation_type) {
+    return fail('指定了参照成员时必须选择关系类型')
+  }
+
+  if (relation_type && !RELATION_TYPES.includes(relation_type)) {
     return fail(`无效的关系类型: ${relation_type}`)
   }
 
@@ -55,20 +61,22 @@ async function create(params) {
     return fail('Restricted 用户无权创建成员')
   }
 
-  // Look up reference person to derive generation
-  const refRes = await db.collection('persons').doc(reference_person_id).get()
-  const refPerson = refRes.data
-  if (!refPerson || refPerson.family_id !== family_id) {
-    return fail('参照成员不存在或不属于该家庭')
-  }
+  let generation = 0
 
-  const delta = GENERATION_DELTA[relation_type]
-  if (delta === undefined) {
-    return fail('无法计算辈分差')
+  if (!isFirstMember) {
+    // Look up reference person to derive generation
+    const refRes = await db.collection('persons').doc(reference_person_id).get()
+    const refPerson = refRes.data
+    if (!refPerson || refPerson.family_id !== family_id) {
+      return fail('参照成员不存在或不属于该家庭')
+    }
+
+    const delta = GENERATION_DELTA[relation_type]
+    if (delta === undefined) {
+      return fail('无法计算辈分差')
+    }
+    generation = (refPerson.generation || 0) + delta
   }
-  // New person IS relation_type OF reference person.
-  // E.g. new person is FATHER of reference => new person's generation = reference.generation + delta(FATHER) = ref - 1
-  const generation = (refPerson.generation || 0) + delta
 
   const now = db.serverDate()
 
@@ -89,28 +97,34 @@ async function create(params) {
   const addRes = await db.collection('persons').add({ data: personData })
   const newPersonId = addRes._id
 
-  // Create forward relationship: new person -> reference person
-  const forwardRel = {
-    family_id,
-    from_id: newPersonId,
-    to_id: reference_person_id,
-    relation_type,
-    created_at: now
-  }
-  await db.collection('relationships').add({ data: forwardRel })
+  // Create relationships only when a reference person is provided
+  if (!isFirstMember) {
+    const refRes2 = await db.collection('persons').doc(reference_person_id).get()
+    const refPerson = refRes2.data
 
-  // Create reverse relationship: reference person -> new person
-  const reverseMap = REVERSE_RELATION[relation_type]
-  if (reverseMap) {
-    const reverseType = reverseMap[refPerson.gender] || reverseMap.male
-    const reverseRel = {
+    // Create forward relationship: new person -> reference person
+    const forwardRel = {
       family_id,
-      from_id: reference_person_id,
-      to_id: newPersonId,
-      relation_type: reverseType,
+      from_id: newPersonId,
+      to_id: reference_person_id,
+      relation_type,
       created_at: now
     }
-    await db.collection('relationships').add({ data: reverseRel })
+    await db.collection('relationships').add({ data: forwardRel })
+
+    // Create reverse relationship: reference person -> new person
+    const reverseMap = REVERSE_RELATION[relation_type]
+    if (reverseMap) {
+      const reverseType = reverseMap[refPerson.gender] || reverseMap.male
+      const reverseRel = {
+        family_id,
+        from_id: reference_person_id,
+        to_id: newPersonId,
+        relation_type: reverseType,
+        created_at: now
+      }
+      await db.collection('relationships').add({ data: reverseRel })
+    }
   }
 
   // Increment family member_count

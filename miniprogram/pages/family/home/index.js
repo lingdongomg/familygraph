@@ -79,8 +79,26 @@ Page({
   },
 
   onAddMember() {
-    wx.navigateTo({
-      url: `/pages/person/create/index?family_id=${this.data.familyId}`
+    const { members, familyId } = this.data
+
+    // No members yet — first member mode (no reference needed)
+    if (!members || members.length === 0) {
+      wx.navigateTo({
+        url: `/pages/person/create/index?family_id=${familyId}`
+      })
+      return
+    }
+
+    // Has members — let user pick a reference person
+    const names = members.map(m => m.name || '未知')
+    wx.showActionSheet({
+      itemList: names,
+      success: (res) => {
+        const refPerson = members[res.tapIndex]
+        wx.navigateTo({
+          url: `/pages/person/create/index?family_id=${familyId}&reference_person_id=${refPerson._id}`
+        })
+      }
     })
   },
 

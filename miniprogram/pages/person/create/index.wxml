@@ -1,20 +1,28 @@
 <view class="container">
-  <!-- Relation prompt -->
-  <view class="card relation-prompt">
-    <text class="prompt-text">他/她是 </text>
-    <text class="prompt-name">{{referencePersonName}}</text>
-    <text class="prompt-text"> 的...</text>
-  </view>
+  <!-- Relation prompt (hidden in first member mode) -->
+  <block wx:if="{{!isFirstMember}}">
+    <view class="card relation-prompt">
+      <text class="prompt-text">他/她是 </text>
+      <text class="prompt-name">{{referencePersonName}}</text>
+      <text class="prompt-text"> 的...</text>
+    </view>
 
-  <!-- Relation picker -->
-  <view class="card">
-    <view class="section-title">选择关系</view>
-    <relation-picker
-      relation-types="{{relationTypes}}"
-      selected="{{selectedRelation}}"
-      bind:select="onRelationSelect"
-    />
-  </view>
+    <!-- Relation picker -->
+    <view class="card">
+      <view class="section-title">选择关系</view>
+      <relation-picker
+        relation-types="{{relationTypes}}"
+        selected="{{selectedRelation}}"
+        bind:select="onRelationSelect"
+      />
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="card relation-prompt">
+      <text class="prompt-text">添加第一位家庭成员</text>
+    </view>
+  </block>
 
   <!-- Person info form -->
   <view class="card">
@@ -71,7 +79,7 @@
 
   <!-- Submit -->
   <view
-    class="{{submitting || !name || !selectedRelation ? 'btn-disabled' : 'btn-primary'}} submit-btn"
+    class="{{submitting || !name || (!isFirstMember && !selectedRelation) ? 'btn-disabled' : 'btn-primary'}} submit-btn"
     bindtap="onSubmit"
   >
     添加成员

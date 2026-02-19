@@ -7,6 +7,7 @@ Page({
     familyId: '',
     referencePersonId: '',
     referencePersonName: '',
+    isFirstMember: false,
     name: '',
     gender: GENDER.MALE,
     birthYear: '',
@@ -18,11 +19,13 @@ Page({
 
   onLoad(options) {
     const { family_id, reference_person_id } = options
-    if (!family_id || !reference_person_id) {
+    if (!family_id) {
       api.showError('缺少必要参数')
       wx.navigateBack()
       return
     }
+
+    const isFirstMember = !reference_person_id
 
     // Build relation type grid data
     const relationTypes = Object.keys(RELATION_TYPES).map(key => ({
@@ -32,11 +35,14 @@ Page({
 
     this.setData({
       familyId: family_id,
-      referencePersonId: reference_person_id,
+      referencePersonId: reference_person_id || '',
+      isFirstMember,
       relationTypes
     })
 
-    this.loadReferencePerson()
+    if (!isFirstMember) {
+      this.loadReferencePerson()
+    }
   },
 
   async loadReferencePerson() {
@@ -75,13 +81,13 @@ Page({
   },
 
   async onSubmit() {
-    const { name, gender, birthYear, isDeceased, selectedRelation, familyId, referencePersonId } = this.data
+    const { name, gender, birthYear, isDeceased, selectedRelation, familyId, referencePersonId, isFirstMember } = this.data
 
     if (!name.trim()) {
       api.showError('请输入姓名')
       return
     }
-    if (!selectedRelation) {
+    if (!isFirstMember && !selectedRelation) {
       api.showError('请选择关系')
       return
     }
@@ -90,15 +96,20 @@ Page({
 
     try {
       await auth.ensureLogin()
-      await api.callWithLoading('person/create', {
+      const params = {
         family_id: familyId,
-        reference_person_id: referencePersonId,
-        relation_type: selectedRelation,
         name: name.trim(),
         gender,
         birth_year: birthYear ? parseInt(birthYear) : undefined,
         is_deceased: isDeceased
-      }, '添加中...')
+      }
+
+      if (!isFirstMember) {
+        params.reference_person_id = referencePersonId
+        params.relation_type = selectedRelation
+      }
+
+      await api.callWithLoading('person/create', params, '添加中...')
 
       api.showSuccess('添加成功')
       setTimeout(() => {
