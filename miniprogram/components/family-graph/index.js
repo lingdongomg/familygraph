@@ -246,6 +246,14 @@ Component({
         var original = self.data.nodes.filter(function (n) { return n._id === node.id })[0]
         var isSelf = original && original.bound_user_id === currentUserId && !!currentUserId
 
+        // Self node outer glow
+        if (isSelf) {
+          ctx.beginPath()
+          ctx.arc(node.x, node.y, nodeRadius + 6, 0, 2 * Math.PI)
+          ctx.fillStyle = 'rgba(212, 160, 23, 0.2)'
+          ctx.fill()
+        }
+
         // Node circle
         ctx.beginPath()
         ctx.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI)
@@ -259,10 +267,10 @@ Component({
         }
         ctx.fill()
 
-        // Border — gold for self, white for others
+        // Border — gold 4px for self, white for others
         if (isSelf) {
           ctx.strokeStyle = '#D4A017'
-          ctx.lineWidth = 3
+          ctx.lineWidth = 4
         } else {
           ctx.strokeStyle = '#FFFFFF'
           ctx.lineWidth = 2

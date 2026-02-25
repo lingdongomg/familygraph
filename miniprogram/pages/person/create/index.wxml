@@ -2,7 +2,7 @@
   <!-- Relation prompt (hidden in first member mode) -->
   <block wx:if="{{!isFirstMember}}">
     <view class="card relation-prompt">
-      <text class="prompt-text">他/她是 </text>
+      <text class="prompt-text">新成员是 </text>
       <text class="prompt-name">{{referencePersonName}}</text>
       <text class="prompt-text"> 的...</text>
     </view>
@@ -15,6 +15,9 @@
         selected="{{selectedRelation}}"
         bind:select="onRelationSelect"
       />
+      <view class="relation-confirm" wx:if="{{selectedRelation}}">
+        <text class="relation-confirm-text">即：新成员是{{referencePersonName}}的{{selectedRelationLabel}}</text>
+      </view>
     </view>
   </block>
 

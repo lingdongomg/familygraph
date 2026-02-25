@@ -51,3 +51,16 @@
 .submit-btn {
   margin-top: 40rpx;
 }
+
+/* Relation confirmation */
+.relation-confirm {
+  margin-top: 20rpx;
+  padding: 16rpx 20rpx;
+  background: #FFF8E1;
+  border-radius: 8rpx;
+}
+
+.relation-confirm-text {
+  font-size: 26rpx;
+  color: #8B4513;
+}

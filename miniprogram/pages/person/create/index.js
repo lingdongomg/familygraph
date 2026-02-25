@@ -12,6 +12,7 @@ Page({
     gender: GENDER.MALE,
     birthYear: '',
     selectedRelation: '',
+    selectedRelationLabel: '',
     relationTypes: [],
     submitting: false
   },
@@ -72,7 +73,9 @@ Page({
   },
 
   onRelationSelect(e) {
-    this.setData({ selectedRelation: e.detail.type })
+    const type = e.detail.type
+    const label = RELATION_TYPE_LABELS[type] || type
+    this.setData({ selectedRelation: type, selectedRelationLabel: label })
   },
 
   async onSubmit() {

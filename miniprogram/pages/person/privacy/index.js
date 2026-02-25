@@ -96,13 +96,13 @@ Page({
       api.showError('备注条目已达上限（20条）')
       return
     }
-    const remarks = [...this.data.remarks, text]
+    const remarks = this.data.remarks.concat([text])
     this.setData({ remarks, newRemark: '' })
   },
 
   onDeleteRemark(e) {
     const index = e.currentTarget.dataset.index
-    const remarks = [...this.data.remarks]
+    const remarks = this.data.remarks.slice()
     remarks.splice(index, 1)
     this.setData({ remarks })
   },

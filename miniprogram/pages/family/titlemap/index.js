@@ -95,10 +95,9 @@ Page({
       const sharedMaps = []
 
       for (const m of allMaps) {
-        const item = {
-          ...m,
+        const item = Object.assign({}, m, {
           overrideCount: m.overrides ? Object.keys(m.overrides).length : 0
-        }
+        })
         if (m.creator_id === openidHash || m._isMine) {
           myMaps.push(item)
         } else {
@@ -178,7 +177,7 @@ Page({
   // --- Path step picker handlers ---
 
   onAddPathStep() {
-    const pathSteps = [...this.data.pathSteps]
+    const pathSteps = this.data.pathSteps.slice()
     if (pathSteps.length >= 5) return
     pathSteps.push({ label: '', value: '', pickerIndex: -1 })
     this.setData({ pathSteps })
@@ -190,7 +189,7 @@ Page({
     const opt = RELATION_OPTIONS[pickerIndex]
     if (!opt) return
 
-    const pathSteps = [...this.data.pathSteps]
+    const pathSteps = this.data.pathSteps.slice()
     pathSteps[idx] = { label: opt.label, value: opt.value, pickerIndex }
 
     // Auto-infer gender from the last step
@@ -236,7 +235,7 @@ Page({
     if (!key) return
 
     const displayKey = parsePathKeyToDisplay(key)
-    const editorOverrides = [...this.data.editorOverrides]
+    const editorOverrides = this.data.editorOverrides.slice()
     const existing = editorOverrides.findIndex(o => o.key === key)
     if (existing >= 0) {
       editorOverrides[existing].value = value
