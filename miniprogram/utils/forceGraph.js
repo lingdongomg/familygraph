@@ -15,11 +15,11 @@
 // Constants
 // ---------------------------------------------------------------------------
 
-var NODE_RADIUS = 25;
+var NODE_RADIUS = 30;
 var REPULSION = 5000;
 var ATTRACTION = 0.01;
-var GENERATION_Y_SPACING = 120;
-var SPOUSE_X_SPACING = 60;
+var GENERATION_Y_SPACING = 140;
+var SPOUSE_X_SPACING = 70;
 var MAX_ITERATIONS = 100;
 var DAMPING = 0.9;
 var PADDING = 40;
@@ -395,7 +395,7 @@ ForceGraph.prototype.getLayout = function () {
  * Returns null if no node matches.
  */
 ForceGraph.prototype.getNodeAt = function (x, y) {
-  var LABEL_HIT_EXTRA = 20;
+  var LABEL_HIT_EXTRA = 40;
   var hitRadius = NODE_RADIUS + LABEL_HIT_EXTRA;
   var hitRadiusSq = hitRadius * hitRadius;
   for (var i = 0; i < this.nodes.length; i++) {

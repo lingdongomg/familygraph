@@ -1,6 +1,48 @@
 const api = require('../../../utils/api')
 const auth = require('../../../utils/auth')
 
+// 关系类型中英文映射
+const RELATION_OPTIONS = [
+  { label: '爸爸', value: 'FATHER' },
+  { label: '妈妈', value: 'MOTHER' },
+  { label: '儿子', value: 'SON' },
+  { label: '女儿', value: 'DAUGHTER' },
+  { label: '丈夫', value: 'HUSBAND' },
+  { label: '妻子', value: 'WIFE' },
+  { label: '哥哥', value: 'OLDER_BROTHER' },
+  { label: '弟弟', value: 'YOUNGER_BROTHER' },
+  { label: '姐姐', value: 'OLDER_SISTER' },
+  { label: '妹妹', value: 'YOUNGER_SISTER' }
+]
+
+const RELATION_LABEL_MAP = {}
+const RELATION_VALUE_MAP = {}
+for (const opt of RELATION_OPTIONS) {
+  RELATION_LABEL_MAP[opt.value] = opt.label
+  RELATION_VALUE_MAP[opt.label] = opt.value
+}
+
+const MALE_RELATIONS = new Set(['FATHER', 'SON', 'HUSBAND', 'OLDER_BROTHER', 'YOUNGER_BROTHER'])
+
+function inferGender(relationValue) {
+  return MALE_RELATIONS.has(relationValue) ? 'male' : 'female'
+}
+
+function buildPathKey(pathSteps, gender) {
+  if (!pathSteps || pathSteps.length === 0) return ''
+  const path = pathSteps.map(s => s.value).join('>')
+  return path + '|' + gender
+}
+
+function parsePathKeyToDisplay(pathKey) {
+  if (!pathKey || !pathKey.includes('|')) return pathKey
+  const [pathPart, genderPart] = pathKey.split('|')
+  const steps = pathPart.split('>')
+  const labels = steps.map(s => RELATION_LABEL_MAP[s] || s)
+  const genderLabel = genderPart === 'male' ? '男' : '女'
+  return labels.join(' → ') + ' (' + genderLabel + ')'
+}
+
 Page({
   data: {
     familyId: '',
@@ -15,7 +57,10 @@ Page({
     editorName: '',
     editorShared: false,
     editorOverrides: [],
-    newOverrideKey: '',
+    // New override builder state
+    relationOptions: RELATION_OPTIONS.map(o => o.label),
+    pathSteps: [],       // [{ label: '妈妈', value: 'MOTHER', pickerIndex: 1 }, ...]
+    overrideGender: '',  // 'male' or 'female'
     newOverrideValue: ''
   },
 
@@ -87,7 +132,8 @@ Page({
       editorName: '',
       editorShared: false,
       editorOverrides: [],
-      newOverrideKey: '',
+      pathSteps: [],
+      overrideGender: '',
       newOverrideValue: ''
     })
   },
@@ -97,14 +143,19 @@ Page({
     try {
       const map = await api.callFunction('titlemap/get', { title_map_id: mapId })
       const overrides = map.overrides || {}
-      const editorOverrides = Object.entries(overrides).map(([key, value]) => ({ key, value }))
+      const editorOverrides = Object.entries(overrides).map(([key, value]) => ({
+        key,
+        value,
+        displayKey: parsePathKeyToDisplay(key)
+      }))
       this.setData({
         showEditor: true,
         editingMapId: mapId,
         editorName: map.name || '',
         editorShared: !!map.is_shared,
         editorOverrides,
-        newOverrideKey: '',
+        pathSteps: [],
+        overrideGender: '',
         newOverrideValue: ''
       })
     } catch (err) {
@@ -124,8 +175,49 @@ Page({
     this.setData({ editorShared: e.detail.value })
   },
 
-  onNewOverrideKeyInput(e) {
-    this.setData({ newOverrideKey: e.detail.value })
+  // --- Path step picker handlers ---
+
+  onAddPathStep() {
+    const pathSteps = [...this.data.pathSteps]
+    if (pathSteps.length >= 5) return
+    pathSteps.push({ label: '', value: '', pickerIndex: -1 })
+    this.setData({ pathSteps })
+  },
+
+  onPathStepChange(e) {
+    const idx = parseInt(e.currentTarget.dataset.idx, 10)
+    const pickerIndex = parseInt(e.detail.value, 10)
+    const opt = RELATION_OPTIONS[pickerIndex]
+    if (!opt) return
+
+    const pathSteps = [...this.data.pathSteps]
+    pathSteps[idx] = { label: opt.label, value: opt.value, pickerIndex }
+
+    // Auto-infer gender from the last step
+    const lastStep = pathSteps[pathSteps.length - 1]
+    const overrideGender = lastStep.value ? inferGender(lastStep.value) : this.data.overrideGender
+
+    this.setData({ pathSteps, overrideGender })
+  },
+
+  onRemovePathStep(e) {
+    const idx = parseInt(e.currentTarget.dataset.idx, 10)
+    const pathSteps = this.data.pathSteps.filter((_, i) => i !== idx)
+
+    // Re-infer gender from new last step
+    let overrideGender = this.data.overrideGender
+    if (pathSteps.length > 0) {
+      const lastStep = pathSteps[pathSteps.length - 1]
+      if (lastStep.value) overrideGender = inferGender(lastStep.value)
+    } else {
+      overrideGender = ''
+    }
+
+    this.setData({ pathSteps, overrideGender })
+  },
+
+  onGenderChange(e) {
+    this.setData({ overrideGender: e.currentTarget.dataset.gender })
   },
 
   onNewOverrideValueInput(e) {
@@ -133,18 +225,31 @@ Page({
   },
 
   onAddOverride() {
-    const key = (this.data.newOverrideKey || '').trim()
-    const value = (this.data.newOverrideValue || '').trim()
-    if (!key || !value) return
+    const { pathSteps, overrideGender, newOverrideValue } = this.data
+    const value = (newOverrideValue || '').trim()
 
+    // Validate: at least one step selected, gender set, and value provided
+    const validSteps = pathSteps.filter(s => s.value)
+    if (validSteps.length === 0 || !overrideGender || !value) return
+
+    const key = buildPathKey(validSteps, overrideGender)
+    if (!key) return
+
+    const displayKey = parsePathKeyToDisplay(key)
     const editorOverrides = [...this.data.editorOverrides]
     const existing = editorOverrides.findIndex(o => o.key === key)
     if (existing >= 0) {
       editorOverrides[existing].value = value
+      editorOverrides[existing].displayKey = displayKey
     } else {
-      editorOverrides.push({ key, value })
+      editorOverrides.push({ key, value, displayKey })
     }
-    this.setData({ editorOverrides, newOverrideKey: '', newOverrideValue: '' })
+    this.setData({
+      editorOverrides,
+      pathSteps: [],
+      overrideGender: '',
+      newOverrideValue: ''
+    })
   },
 
   onDeleteOverride(e) {

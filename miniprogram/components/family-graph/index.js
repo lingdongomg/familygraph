@@ -12,7 +12,8 @@
  * Node styles:
  *   - Circle with gender-based fill colour
  *   - Avatar image or initial letter
- *   - Label rendered below the node
+ *   - Dual-line label below node: name (bold) + title (gray)
+ *   - Self node: gold border highlight
  */
 var ForceGraph = require('../../utils/forceGraph')
 var constants = require('../../utils/constants')
@@ -21,6 +22,15 @@ var GRAPH = constants.GRAPH
 var SPOUSE_TYPES = ['HUSBAND', 'WIFE']
 var PARENT_CHILD_TYPES = ['FATHER', 'MOTHER', 'SON', 'DAUGHTER']
 // Sibling types are everything else.
+
+// Max display length before truncation
+var MAX_NAME_LEN = 4
+var MAX_TITLE_LEN = 5
+
+function truncate(str, maxLen) {
+  if (!str) return ''
+  return str.length > maxLen ? str.slice(0, maxLen) + '\u2026' : str
+}
 
 Component({
   properties: {
@@ -99,16 +109,30 @@ Component({
       if (!this.data.ctx || !this.data.nodes.length) return
 
       var self = this
+      var edges = this.data.edges
+
+      // Detect spouse pairs from edges
+      var spouseMap = {}  // personId -> spousePersonId
+      edges.forEach(function (e) {
+        if (SPOUSE_TYPES.indexOf(e.relation_type) !== -1) {
+          spouseMap[e.from_id] = e.to_id
+          spouseMap[e.to_id] = e.from_id
+        }
+      })
+
       var graph = new ForceGraph({
         nodes: this.data.nodes.map(function (n) {
+          var hasSpouse = !!spouseMap[n._id]
           return {
             id: n._id,
             generation: n.generation,
             gender: n.gender,
-            label: self.getNodeLabel(n)
+            isSpouse: hasSpouse,
+            spouseId: spouseMap[n._id] || null,
+            label: n.name || ''
           }
         }),
-        edges: this.data.edges.map(function (e) {
+        edges: edges.map(function (e) {
           return {
             source: e.from_id,
             target: e.to_id,
@@ -128,16 +152,32 @@ Component({
     },
 
     // ------------------------------------------------------------------
-    // Node label resolution
+    // Node label resolution — returns { name, title }
     // ------------------------------------------------------------------
-    getNodeLabel: function (node) {
-      if (node.bound_user_id === this.data.currentUserId) return '\u6211'  // '我'
-      var title = this.data.titles[node._id]
-      if (title) {
-        if (title.custom_title) return title.custom_title
-        if (title.formal_title) return title.formal_title
+    getNodeLabels: function (node) {
+      var name = (node && node.name) || ''
+      var currentUserId = this.data.currentUserId
+
+      // Not logged in / no bound person — name only
+      if (!currentUserId) {
+        return { name: name, title: '' }
       }
-      return node.name || ''
+
+      // Self node
+      if (node.bound_user_id === currentUserId) {
+        return { name: name, title: '\u672C\u4EBA' }  // '本人'
+      }
+
+      // Other nodes: custom_title (user-edited) > formal_title (from title map)
+      var titleData = this.data.titles[node._id]
+      if (titleData) {
+        var title = titleData.custom_title || titleData.formal_title || ''
+        // Filter out the generic "亲属" fallback — treat as no title
+        if (title === '\u4EB2\u5C5E') title = ''
+        return { name: name, title: title }
+      }
+
+      return { name: name, title: '' }
     },
 
     // ------------------------------------------------------------------
@@ -199,8 +239,13 @@ Component({
       var nodeRadius = GRAPH.NODE_RADIUS
       var fontSize = GRAPH.FONT_SIZE
       var labelFontSize = GRAPH.LABEL_FONT_SIZE
+      var subLabelFontSize = GRAPH.SUB_LABEL_FONT_SIZE
+      var currentUserId = this.data.currentUserId
 
       layout.nodes.forEach(function (node) {
+        var original = self.data.nodes.filter(function (n) { return n._id === node.id })[0]
+        var isSelf = original && original.bound_user_id === currentUserId && !!currentUserId
+
         // Node circle
         ctx.beginPath()
         ctx.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI)
@@ -214,9 +259,14 @@ Component({
         }
         ctx.fill()
 
-        // Border
-        ctx.strokeStyle = '#FFFFFF'
-        ctx.lineWidth = 2
+        // Border — gold for self, white for others
+        if (isSelf) {
+          ctx.strokeStyle = '#D4A017'
+          ctx.lineWidth = 3
+        } else {
+          ctx.strokeStyle = '#FFFFFF'
+          ctx.lineWidth = 2
+        }
         ctx.stroke()
 
         // Avatar image or initial letter
@@ -230,7 +280,6 @@ Component({
           ctx.restore()
         } else {
           // Draw initial letter
-          var original = self.data.nodes.filter(function (n) { return n._id === node.id })[0]
           var initial = (original && original.name) ? original.name[0] : '?'
           ctx.fillStyle = '#FFFFFF'
           ctx.font = 'bold ' + fontSize + 'px sans-serif'
@@ -239,15 +288,26 @@ Component({
           ctx.fillText(initial, node.x, node.y)
         }
 
-        // Label below node
-        var label = self.getNodeLabel(
-          self.data.nodes.filter(function (n) { return n._id === node.id })[0] || { name: '' }
-        )
+        // Dual-line label below node
+        var labels = self.getNodeLabels(original || { name: '' })
+        var nameText = truncate(labels.name, MAX_NAME_LEN)
+        var titleText = truncate(labels.title, MAX_TITLE_LEN)
+
+        // Line 1: name (bold)
+        var labelY = node.y + nodeRadius + 6
         ctx.fillStyle = '#333333'
-        ctx.font = labelFontSize + 'px sans-serif'
+        ctx.font = 'bold ' + labelFontSize + 'px sans-serif'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'top'
-        ctx.fillText(label, node.x, node.y + nodeRadius + 6)
+        ctx.fillText(nameText, node.x, labelY)
+
+        // Line 2: title (gray, only if present)
+        if (titleText) {
+          var titleY = labelY + labelFontSize + 3
+          ctx.fillStyle = '#888888'
+          ctx.font = subLabelFontSize + 'px sans-serif'
+          ctx.fillText(titleText, node.x, titleY)
+        }
       })
 
       ctx.restore()

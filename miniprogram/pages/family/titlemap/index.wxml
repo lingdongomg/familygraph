@@ -93,30 +93,69 @@
 
         <view class="override-list">
           <view class="override-item" wx:for="{{editorOverrides}}" wx:key="key">
-            <text class="override-key">{{item.key}}</text>
+            <text class="override-key">{{item.displayKey}}</text>
             <text class="override-arrow">→</text>
             <text class="override-value">{{item.value}}</text>
             <text class="override-delete" data-key="{{item.key}}" bindtap="onDeleteOverride">×</text>
           </view>
         </view>
 
-        <view class="override-add">
-          <input
-            class="form-input override-input"
-            placeholder="路径键 如 MOTHER>FATHER|male"
-            value="{{newOverrideKey}}"
-            bindinput="onNewOverrideKeyInput"
-            maxlength="100"
-          />
-          <input
-            class="form-input override-input"
-            placeholder="称谓 如 阿公"
-            value="{{newOverrideValue}}"
-            bindinput="onNewOverrideValueInput"
-            maxlength="20"
-          />
-          <view class="remark-add-btn {{newOverrideKey && newOverrideValue ? '' : 'remark-add-btn-disabled'}}" bindtap="onAddOverride">
-            <text>添加</text>
+        <!-- Option-based path builder -->
+        <view class="path-builder">
+          <view class="path-builder-label">添加覆盖项</view>
+
+          <!-- Relation path steps -->
+          <view class="path-steps">
+            <view class="path-step" wx:for="{{pathSteps}}" wx:key="index">
+              <text class="path-step-prefix" wx:if="{{index > 0}}">的</text>
+              <picker
+                mode="selector"
+                range="{{relationOptions}}"
+                value="{{item.pickerIndex}}"
+                data-idx="{{index}}"
+                bindchange="onPathStepChange"
+              >
+                <view class="path-step-picker {{item.label ? '' : 'path-step-placeholder'}}">
+                  {{item.label || '选择关系'}}
+                </view>
+              </picker>
+              <text class="path-step-remove" data-idx="{{index}}" bindtap="onRemovePathStep">×</text>
+            </view>
+          </view>
+
+          <view class="path-step-add" wx:if="{{pathSteps.length < 5}}" bindtap="onAddPathStep">
+            <text>+ 添加{{pathSteps.length > 0 ? '下一级' : ''}}关系</text>
+          </view>
+
+          <!-- Gender toggle -->
+          <view class="gender-row" wx:if="{{pathSteps.length > 0}}">
+            <text class="form-label">性别</text>
+            <view class="gender-toggle">
+              <view
+                class="gender-btn {{overrideGender === 'male' ? 'gender-btn-active' : ''}}"
+                data-gender="male"
+                bindtap="onGenderChange"
+              >男</view>
+              <view
+                class="gender-btn {{overrideGender === 'female' ? 'gender-btn-active' : ''}}"
+                data-gender="female"
+                bindtap="onGenderChange"
+              >女</view>
+            </view>
+          </view>
+
+          <!-- Title value input + add button -->
+          <view class="override-add" wx:if="{{pathSteps.length > 0}}">
+            <input
+              class="form-input override-input"
+              placeholder="输入称谓 如 阿公"
+              value="{{newOverrideValue}}"
+              bindinput="onNewOverrideValueInput"
+              maxlength="20"
+            />
+            <view class="remark-add-btn {{overrideGender && newOverrideValue ? '' : 'remark-add-btn-disabled'}}" bindtap="onAddOverride">
+              <text>添加</text>
+            </view>
           </view>
         </view>
 

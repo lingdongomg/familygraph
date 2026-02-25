@@ -1,6 +1,3 @@
 {
-  "navigationBarTitleText": "成员详情",
-  "usingComponents": {
-    "person-card": "/components/person-card/index"
-  }
+  "navigationBarTitleText": "成员详情"
 }
