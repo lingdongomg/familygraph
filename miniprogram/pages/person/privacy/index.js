@@ -11,7 +11,8 @@ Page({
     city: '',
     occupation: '',
     customTitle: '',
-    remark: '',
+    remarks: [],
+    newRemark: '',
     loading: true,
     submitting: false
   },
@@ -48,7 +49,7 @@ Page({
           city: note.city || '',
           occupation: note.occupation || '',
           customTitle: note.custom_title || '',
-          remark: note.remark || '',
+          remarks: Array.isArray(note.remarks) ? note.remarks : [],
           loading: false
         })
       } else {
@@ -84,8 +85,26 @@ Page({
     this.setData({ customTitle: e.detail.value })
   },
 
-  onRemarkInput(e) {
-    this.setData({ remark: e.detail.value })
+  onNewRemarkInput(e) {
+    this.setData({ newRemark: e.detail.value })
+  },
+
+  onAddRemark() {
+    const text = (this.data.newRemark || '').trim()
+    if (!text) return
+    if (this.data.remarks.length >= 20) {
+      api.showError('备注条目已达上限（20条）')
+      return
+    }
+    const remarks = [...this.data.remarks, text]
+    this.setData({ remarks, newRemark: '' })
+  },
+
+  onDeleteRemark(e) {
+    const index = e.currentTarget.dataset.index
+    const remarks = [...this.data.remarks]
+    remarks.splice(index, 1)
+    this.setData({ remarks })
   },
 
   async onSubmit() {
@@ -99,7 +118,7 @@ Page({
         person_id: this.data.personId
       }
 
-      const { phone, wechatId, birthDate, city, occupation, customTitle, remark } = this.data
+      const { phone, wechatId, birthDate, city, occupation, customTitle, remarks } = this.data
 
       if (phone) params.phone = phone
       if (wechatId) params.wechat_id = wechatId
@@ -107,7 +126,7 @@ Page({
       if (city) params.city = city
       if (occupation) params.occupation = occupation
       if (customTitle) params.custom_title = customTitle
-      if (remark) params.remark = remark
+      params.remarks = remarks
 
       await api.callWithLoading('note/upsert', params, '保存中...')
 

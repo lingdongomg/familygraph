@@ -2,8 +2,8 @@
  * 云函数公共常量（与客户端 constants.js 同步）
  */
 
-const SHARED_FIELDS = ['name', 'gender', 'birth_year', 'is_deceased', 'avatar', 'generation']
-const PRIVATE_OVERLAY_FIELDS = ['phone', 'wechat_id', 'birth_date', 'city', 'occupation', 'custom_title', 'remark']
+const SHARED_FIELDS = ['name', 'gender', 'birth_year', 'avatar', 'generation']
+const PRIVATE_OVERLAY_FIELDS = ['phone', 'wechat_id', 'birth_date', 'city', 'occupation', 'custom_title', 'remarks']
 const ENCRYPTED_FIELDS = ['phone', 'wechat_id']
 
 const RELATION_TYPES = [
@@ -42,7 +42,7 @@ const SHARE_LINK_EXPIRE_DAYS = 7
 const JOIN_REQUEST_EXPIRE_HOURS = 48
 const EDIT_HISTORY_RETAIN_DAYS = 90
 const BFS_MAX_DEPTH = 5
-const GUEST_VISIBLE_FIELDS = ['name', 'gender', 'birth_year', 'is_deceased']
+const GUEST_VISIBLE_FIELDS = ['name', 'gender', 'birth_year']
 
 module.exports = {
   SHARED_FIELDS, PRIVATE_OVERLAY_FIELDS, ENCRYPTED_FIELDS,

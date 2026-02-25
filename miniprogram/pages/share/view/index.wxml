@@ -67,7 +67,6 @@
             <text class="tag {{item.gender === 'male' ? 'tag-male' : 'tag-female'}}">
               {{item.gender === 'male' ? '男' : '女'}}
             </text>
-            <text class="tag tag-deceased" wx:if="{{item.is_deceased}}">已故</text>
           </view>
           <text class="item-subtitle" wx:if="{{item.birth_year}}">{{item.birth_year}}年</text>
         </view>

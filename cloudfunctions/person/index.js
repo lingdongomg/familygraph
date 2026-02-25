@@ -36,7 +36,6 @@ exports.main = async (event, context) => {
 async function create(params) {
   const {
     family_id, name, gender, birth_year,
-    is_deceased = false,
     reference_person_id, relation_type
   } = params
 
@@ -86,7 +85,6 @@ async function create(params) {
     name,
     gender,
     birth_year: birth_year || null,
-    is_deceased,
     avatar: '',
     avatar_public: false,
     generation,
@@ -373,6 +371,14 @@ async function getDetail(params) {
         result[`${key}_source`] = 'my_note'
       }
     }
+    // 惰性迁移：旧 remark 字符串 → remarks 数组
+    if (typeof note.remark === 'string' && note.remark && !result.remarks) {
+      result.remarks = [note.remark]
+      result.remarks_source = 'my_note'
+    }
+    if (!Array.isArray(result.remarks)) {
+      result.remarks = []
+    }
   }
 
   return success(result)
@@ -429,7 +435,7 @@ async function list(params) {
       name: p.name,
       gender: p.gender,
       birth_year: p.birth_year || null,
-      is_deceased: p.is_deceased || false,
+      is_deceased: p.is_deceased || false,  // kept for backward compat, no longer actively written
       avatar: avatarVisible ? (p.avatar || '') : '',
       avatar_public: !!p.avatar_public,
       generation: p.generation !== undefined ? p.generation : null,

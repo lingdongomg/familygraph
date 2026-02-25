@@ -9,7 +9,6 @@ Page({
     name: '',
     gender: GENDER.MALE,
     birthYear: '',
-    isDeceased: false,
     avatar: '',
     avatarPublic: false,
     canToggleAvatarPublic: false,
@@ -53,7 +52,6 @@ Page({
         name: person.name || '',
         gender: person.gender || GENDER.MALE,
         birthYear: person.birth_year ? String(person.birth_year) : '',
-        isDeceased: !!person.is_deceased,
         avatar: person.avatar || '',
         avatarPublic: !!person.avatar_public,
         canToggleAvatarPublic: canToggle,
@@ -75,10 +73,6 @@ Page({
 
   onBirthYearInput(e) {
     this.setData({ birthYear: e.detail.value })
-  },
-
-  onDeceasedChange(e) {
-    this.setData({ isDeceased: e.detail.value })
   },
 
   onAvatarPublicChange(e) {
@@ -132,7 +126,7 @@ Page({
   },
 
   async onSubmit() {
-    const { name, gender, birthYear, isDeceased, avatar, avatarPublic, personId, familyId } = this.data
+    const { name, gender, birthYear, avatar, avatarPublic, personId, familyId } = this.data
 
     if (!name.trim()) {
       api.showError('请输入姓名')
@@ -149,7 +143,6 @@ Page({
         name: name.trim(),
         gender,
         birth_year: birthYear ? parseInt(birthYear) : null,
-        is_deceased: isDeceased,
         avatar: avatar || null,
         avatar_public: avatarPublic
       }, '保存中...')

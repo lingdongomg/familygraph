@@ -11,7 +11,6 @@ Page({
     name: '',
     gender: GENDER.MALE,
     birthYear: '',
-    isDeceased: false,
     selectedRelation: '',
     relationTypes: [],
     submitting: false
@@ -72,16 +71,12 @@ Page({
     this.setData({ birthYear: e.detail.value })
   },
 
-  onDeceasedChange(e) {
-    this.setData({ isDeceased: e.detail.value })
-  },
-
   onRelationSelect(e) {
     this.setData({ selectedRelation: e.detail.type })
   },
 
   async onSubmit() {
-    const { name, gender, birthYear, isDeceased, selectedRelation, familyId, referencePersonId, isFirstMember } = this.data
+    const { name, gender, birthYear, selectedRelation, familyId, referencePersonId, isFirstMember } = this.data
 
     if (!name.trim()) {
       api.showError('请输入姓名')
@@ -100,8 +95,7 @@ Page({
         family_id: familyId,
         name: name.trim(),
         gender,
-        birth_year: birthYear ? parseInt(birthYear) : undefined,
-        is_deceased: isDeceased
+        birth_year: birthYear ? parseInt(birthYear) : undefined
       }
 
       if (!isFirstMember) {

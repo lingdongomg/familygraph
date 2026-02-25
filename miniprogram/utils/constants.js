@@ -3,10 +3,10 @@
  */
 
 // 共享字段（存储在 persons 集合，所有人可见）
-const SHARED_FIELDS = ['name', 'gender', 'birth_year', 'is_deceased', 'avatar', 'generation']
+const SHARED_FIELDS = ['name', 'gender', 'birth_year', 'avatar', 'generation']
 
 // 私人覆盖字段（存储在 person_notes 集合，仅记录者可见）
-const PRIVATE_OVERLAY_FIELDS = ['phone', 'wechat_id', 'birth_date', 'city', 'occupation', 'custom_title', 'remark']
+const PRIVATE_OVERLAY_FIELDS = ['phone', 'wechat_id', 'birth_date', 'city', 'occupation', 'custom_title', 'remarks']
 
 // 需要 AES 加密的私人字段
 const ENCRYPTED_FIELDS = ['phone', 'wechat_id']
@@ -137,7 +137,7 @@ const GENDER = {
 }
 
 // 访客可见的共享字段
-const GUEST_VISIBLE_FIELDS = ['name', 'gender', 'birth_year', 'is_deceased']
+const GUEST_VISIBLE_FIELDS = ['name', 'gender', 'birth_year']
 
 module.exports = {
   SHARED_FIELDS,

@@ -14,15 +14,89 @@
   font-size: 28rpx;
 }
 
-/* Remark textarea */
-.remark-textarea {
-  height: auto;
-  min-height: 160rpx;
-  padding: 20rpx;
-  line-height: 1.6;
-}
-
 /* Submit button */
 .submit-btn {
   margin-top: 40rpx;
+}
+
+/* Remarks section */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.remark-count {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.remark-list {
+  margin-bottom: 16rpx;
+}
+
+.remark-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.remark-item:last-child {
+  border-bottom: none;
+}
+
+.remark-text {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.remark-delete {
+  flex-shrink: 0;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 16rpx;
+}
+
+.remark-delete-icon {
+  font-size: 36rpx;
+  color: #999999;
+  line-height: 1;
+}
+
+.remark-empty {
+  padding: 20rpx 0;
+}
+
+.remark-add {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.remark-add-input {
+  flex: 1;
+}
+
+.remark-add-btn {
+  flex-shrink: 0;
+  padding: 12rpx 24rpx;
+  background-color: #8B4513;
+  color: #FFFFFF;
+  font-size: 26rpx;
+  border-radius: 8rpx;
+  text-align: center;
+}
+
+.remark-add-btn-disabled {
+  opacity: 0.4;
 }

@@ -389,16 +389,20 @@ ForceGraph.prototype.getLayout = function () {
 // ---------------------------------------------------------------------------
 
 /**
- * Hit-test: return the first node whose centre is within NODE_RADIUS of (x, y),
- * or null if no node matches.
+ * Hit-test: return the first node whose centre is within the clickable area
+ * of (x, y). The clickable area includes both the circle (NODE_RADIUS) and
+ * the label region below it (extra LABEL_HIT_EXTRA pixels).
+ * Returns null if no node matches.
  */
 ForceGraph.prototype.getNodeAt = function (x, y) {
-  var threshold = NODE_RADIUS * NODE_RADIUS;
+  var LABEL_HIT_EXTRA = 20;
+  var hitRadius = NODE_RADIUS + LABEL_HIT_EXTRA;
+  var hitRadiusSq = hitRadius * hitRadius;
   for (var i = 0; i < this.nodes.length; i++) {
     var n = this.nodes[i];
     var dx = n.x - x;
-    var dy = n.y - y;
-    if (dx * dx + dy * dy <= threshold) {
+    var dy = n.y - (y - LABEL_HIT_EXTRA / 2);
+    if (dx * dx + dy * dy <= hitRadiusSq) {
       return n;
     }
   }

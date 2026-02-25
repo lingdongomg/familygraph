@@ -1,0 +1,198 @@
+/* Section header */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.section-header .section-title {
+  margin-bottom: 0;
+}
+
+.action-text {
+  font-size: 26rpx;
+  color: #8B4513;
+}
+
+.danger-text {
+  color: #E53935;
+  margin-left: 24rpx;
+}
+
+/* Title map items */
+.titlemap-item {
+  padding: 20rpx 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.titlemap-item:last-child {
+  border-bottom: none;
+}
+
+.item-content {
+  flex: 1;
+}
+
+.item-title {
+  font-size: 30rpx;
+  color: #333333;
+  display: block;
+}
+
+.item-subtitle {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 6rpx;
+  display: block;
+}
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+/* Info row */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.info-empty {
+  font-size: 28rpx;
+  color: #CCCCCC;
+}
+
+.empty-state {
+  padding: 20rpx 0;
+}
+
+/* Modal */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  width: 90%;
+  max-height: 80vh;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.modal-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999999;
+  padding: 0 8rpx;
+}
+
+.modal-footer {
+  margin-top: 32rpx;
+}
+
+/* Override entries */
+.override-title {
+  margin-top: 24rpx;
+}
+
+.override-list {
+  margin-bottom: 16rpx;
+}
+
+.override-item {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #F5F5F5;
+  font-size: 26rpx;
+}
+
+.override-key {
+  flex: 1;
+  color: #666666;
+  word-break: break-all;
+}
+
+.override-arrow {
+  margin: 0 12rpx;
+  color: #999999;
+}
+
+.override-value {
+  color: #8B4513;
+  font-weight: 500;
+}
+
+.override-delete {
+  margin-left: 16rpx;
+  color: #999999;
+  font-size: 32rpx;
+  padding: 0 8rpx;
+}
+
+.override-add {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+
+.override-input {
+  flex: 1;
+  font-size: 24rpx;
+}
+
+.remark-add-btn {
+  flex-shrink: 0;
+  padding: 12rpx 20rpx;
+  background-color: #8B4513;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  border-radius: 8rpx;
+}
+
+.remark-add-btn-disabled {
+  opacity: 0.4;
+}
+
+/* Switch row */
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

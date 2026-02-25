@@ -7,6 +7,7 @@
     "pages/family/join/index",
     "pages/family/approvals/index",
     "pages/family/settings/index",
+    "pages/family/titlemap/index",
     "pages/person/create/index",
     "pages/person/detail/index",
     "pages/person/edit/index",

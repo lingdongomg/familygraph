@@ -34,6 +34,10 @@ exports.main = async (event) => {
       return changeRole(event, OPENID)
     case 'list':
       return list(event, OPENID)
+    case 'getSelf':
+      return getSelf(event, OPENID)
+    case 'updateTitleMap':
+      return updateTitleMap(event, OPENID)
     default:
       return fail('未知操作: ' + action)
   }
@@ -416,4 +420,55 @@ async function list(event, openid) {
   })
 
   return success(result)
+}
+
+/**
+ * 获取当前用户在指定家庭中的成员信息
+ */
+async function getSelf(event, openid) {
+  const { family_id } = event
+  if (!family_id) return fail('缺少 family_id')
+
+  const member = await checkMembership(db, openid, family_id)
+  if (!member) return fail('您不是该家庭成员')
+
+  return success({
+    _id: member._id,
+    role: member.role,
+    adopted_title_map_id: member.adopted_title_map_id || ''
+  })
+}
+
+/**
+ * 更新当前用户选用的称呼表
+ */
+async function updateTitleMap(event, openid) {
+  const { family_id, title_map_id } = event
+  if (!family_id) return fail('缺少 family_id')
+
+  const member = await checkMembership(db, openid, family_id)
+  if (!member) return fail('您不是该家庭成员')
+
+  if (title_map_id) {
+    // 验证称呼表存在且可用（自己的或已分享的）
+    try {
+      const tmRes = await db.collection('custom_title_maps').doc(title_map_id).get()
+      const tm = tmRes.data
+      if (tm.family_id !== family_id) return fail('称呼表不属于该家庭')
+      if (!tm.is_shared && tm.creator_id !== openid) return fail('该称呼表未分享')
+    } catch (e) {
+      return fail('称呼表不存在')
+    }
+
+    await db.collection('family_members').doc(member._id).update({
+      data: { adopted_title_map_id: title_map_id }
+    })
+  } else {
+    // Clear adopted title map
+    await db.collection('family_members').doc(member._id).update({
+      data: { adopted_title_map_id: _.remove() }
+    })
+  }
+
+  return success()
 }

@@ -209,7 +209,7 @@ async function handleComputeTitle(openid, { family_id, from_person_id, to_person
   }
 
   // BFS 搜索最短路径
-  const title = bfsComputeTitle(adjacency, from_person_id, to_person_id, targetPerson.gender, genderMap)
+  const title = bfsComputeTitle(adjacency, from_person_id, to_person_id, targetPerson.gender, genderMap, null)
 
   return success({ title })
 }
@@ -225,7 +225,7 @@ async function handleComputeTitle(openid, { family_id, from_person_id, to_person
  * @param {object} adjacency  邻接表，每项含 { to_id, relation_type }
  * @param {object} genderMap  personId -> gender 映射
  */
-function bfsComputeTitle(adjacency, startId, endId, targetGender, genderMap) {
+function bfsComputeTitle(adjacency, startId, endId, targetGender, genderMap, titleMapOverrides) {
   const visited = new Set()
   const queue = [{ personId: startId, path: [] }]
   visited.add(startId)
@@ -252,6 +252,10 @@ function bfsComputeTitle(adjacency, startId, endId, targetGender, genderMap) {
 
       if (neighbor.to_id === endId) {
         const pathKey = newPath.join('>') + '|' + targetGender
+        // 优先级：自定义称呼表覆盖 > 系统默认 FORMAL_TITLE_MAP
+        if (titleMapOverrides && titleMapOverrides[pathKey]) {
+          return titleMapOverrides[pathKey]
+        }
         return FORMAL_TITLE_MAP[pathKey] || '亲属'
       }
 
@@ -296,6 +300,19 @@ async function handleGetGraph(openid, { family_id }) {
   const edges = edgesRes.data
   const notes = notesRes.data
 
+  // 加载用户选用的自定义称呼表（如有）
+  let titleMapOverrides = {}
+  if (membership.adopted_title_map_id) {
+    try {
+      const tmRes = await db.collection('custom_title_maps').doc(membership.adopted_title_map_id).get()
+      if (tmRes.data && tmRes.data.overrides) {
+        titleMapOverrides = tmRes.data.overrides
+      }
+    } catch (e) {
+      // 称呼表可能已被删除，忽略
+    }
+  }
+
   // 构建备注映射: personId -> custom_title
   const customTitleMap = {}
   for (const note of notes) {
@@ -339,7 +356,7 @@ async function handleGetGraph(openid, { family_id }) {
         continue
       }
 
-      const formalTitle = bfsComputeTitle(adjacency, myPerson._id, node._id, node.gender, genderMap)
+      const formalTitle = bfsComputeTitle(adjacency, myPerson._id, node._id, node.gender, genderMap, titleMapOverrides)
       titles[node._id] = {
         formal_title: formalTitle,
         custom_title: customTitleMap[node._id] || null

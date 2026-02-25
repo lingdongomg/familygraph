@@ -9,8 +9,7 @@ Page({
     person: null,
     photos: [],
     loading: true,
-    genderLabel: '',
-    deceasedLabel: ''
+    genderLabel: ''
   },
 
   onLoad(options) {
@@ -44,12 +43,10 @@ Page({
       })
 
       const genderLabel = person.gender === GENDER.MALE ? '男' : person.gender === GENDER.FEMALE ? '女' : '未填写'
-      const deceasedLabel = person.is_deceased ? '是' : '否'
 
       this.setData({
         person,
         genderLabel,
-        deceasedLabel,
         photos: person.photos ? person.photos.slice(0, 4) : [],
         loading: false
       })

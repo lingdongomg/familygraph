@@ -18,7 +18,7 @@ const _ = db.command
 // action: upsert — 创建或更新私有备注
 // ---------------------------------------------------------------------------
 async function handleUpsert(openid, params) {
-  const { family_id, person_id, phone, wechat_id, birth_date, city, occupation, custom_title, remark } = params
+  const { family_id, person_id, phone, wechat_id, birth_date, city, occupation, custom_title, remarks } = params
 
   if (!family_id || !person_id) {
     return fail('缺少必填参数 family_id 或 person_id')
@@ -30,6 +30,21 @@ async function handleUpsert(openid, params) {
     return fail('您不是该家庭的成员', -3)
   }
 
+  // 校验 remarks 数组
+  if (remarks !== undefined) {
+    if (!Array.isArray(remarks)) {
+      return fail('remarks 必须是数组')
+    }
+    if (remarks.length > 20) {
+      return fail('备注条目不能超过 20 条')
+    }
+    for (const item of remarks) {
+      if (typeof item !== 'string' || item.length > 200) {
+        return fail('每条备注不能超过 200 字')
+      }
+    }
+  }
+
   // 构建更新对象 —— 仅包含调用方传入的字段
   const updateData = { updated_at: db.serverDate() }
   if (phone !== undefined) updateData.phone = encrypt(phone)
@@ -38,7 +53,11 @@ async function handleUpsert(openid, params) {
   if (city !== undefined) updateData.city = city
   if (occupation !== undefined) updateData.occupation = occupation
   if (custom_title !== undefined) updateData.custom_title = custom_title
-  if (remark !== undefined) updateData.remark = remark
+  if (remarks !== undefined) {
+    updateData.remarks = remarks
+    // 清除旧的 remark 字段（惰性迁移）
+    updateData.remark = _.remove()
+  }
 
   // 查找是否已存在该用户对该成员的备注
   const { data: existing } = await db.collection('person_notes')
@@ -49,7 +68,7 @@ async function handleUpsert(openid, params) {
   if (existing.length > 0) {
     // 更新已有记录
     await db.collection('person_notes').doc(existing[0]._id).update({ data: updateData })
-    return success({ _id: existing[0]._id, ...updateData })
+    return success({ _id: existing[0]._id })
   }
 
   // 创建新记录
@@ -64,13 +83,13 @@ async function handleUpsert(openid, params) {
     city: city || '',
     occupation: occupation || '',
     custom_title: custom_title || '',
-    remark: remark || '',
+    remarks: remarks || [],
     created_at: now,
     updated_at: now
   }
 
   const { _id } = await db.collection('person_notes').add({ data: newNote })
-  return success({ _id, ...newNote })
+  return success({ _id })
 }
 
 // ---------------------------------------------------------------------------
@@ -103,6 +122,16 @@ async function handleGet(openid, params) {
   // 解密敏感字段
   if (note.phone) note.phone = decrypt(note.phone)
   if (note.wechat_id) note.wechat_id = decrypt(note.wechat_id)
+
+  // 惰性迁移：如果存在旧 remark 字符串，转换为 remarks 数组
+  if (typeof note.remark === 'string' && note.remark && !note.remarks) {
+    note.remarks = [note.remark]
+  }
+  if (!Array.isArray(note.remarks)) {
+    note.remarks = []
+  }
+  // 移除旧字段，前端只使用 remarks
+  delete note.remark
 
   return success(note)
 }

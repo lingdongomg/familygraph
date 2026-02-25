@@ -65,6 +65,12 @@ Page({
     })
   },
 
+  onTitleMap() {
+    wx.navigateTo({
+      url: `/pages/family/titlemap/index?family_id=${this.data.familyId}`
+    })
+  },
+
   async onGenerateShareLink() {
     try {
       const result = await api.callWithLoading('family/generateShareLink', {

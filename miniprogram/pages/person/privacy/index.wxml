@@ -78,18 +78,42 @@
         maxlength="20"
       />
     </view>
+  </view>
 
-    <!-- Remark -->
-    <view class="form-group">
+  <!-- Remarks (item list) -->
+  <view class="card">
+    <view class="section-header">
       <text class="form-label">备注</text>
-      <textarea
-        class="form-input remark-textarea"
-        placeholder="请输入备注信息"
-        value="{{remark}}"
-        bindinput="onRemarkInput"
-        maxlength="500"
-        auto-height
+      <text class="remark-count">{{remarks.length}}/20</text>
+    </view>
+
+    <!-- Existing remark items -->
+    <view class="remark-list" wx:if="{{remarks.length > 0}}">
+      <view class="remark-item" wx:for="{{remarks}}" wx:key="index">
+        <text class="remark-text">{{item}}</text>
+        <view class="remark-delete" data-index="{{index}}" bindtap="onDeleteRemark">
+          <text class="remark-delete-icon">×</text>
+        </view>
+      </view>
+    </view>
+    <view class="remark-empty" wx:else>
+      <text class="info-empty">暂无备注</text>
+    </view>
+
+    <!-- Add new remark -->
+    <view class="remark-add" wx:if="{{remarks.length < 20}}">
+      <input
+        class="form-input remark-add-input"
+        placeholder="输入新备注（每条最多200字）"
+        value="{{newRemark}}"
+        bindinput="onNewRemarkInput"
+        maxlength="200"
+        confirm-type="done"
+        bindconfirm="onAddRemark"
       />
+      <view class="remark-add-btn {{newRemark ? '' : 'remark-add-btn-disabled'}}" bindtap="onAddRemark">
+        <text>添加</text>
+      </view>
     </view>
   </view>
 

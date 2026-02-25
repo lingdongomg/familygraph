@@ -14,7 +14,6 @@
         <text class="tag {{person.gender === 'male' ? 'tag-male' : 'tag-female'}}" wx:if="{{person.gender}}">
           {{genderLabel}}
         </text>
-        <text class="tag tag-deceased" wx:if="{{person.is_deceased}}">已故</text>
       </view>
     </view>
   </view>
@@ -35,12 +34,6 @@
     <view class="info-row">
       <text class="info-label">出生年份</text>
       <text class="info-value {{person.birth_year ? '' : 'info-empty'}}">{{person.birth_year || '未填写'}}</text>
-    </view>
-    <view class="divider"></view>
-
-    <view class="info-row">
-      <text class="info-label">是否已故</text>
-      <text class="info-value">{{deceasedLabel}}</text>
     </view>
   </view>
 
@@ -89,7 +82,15 @@
 
     <view class="info-row">
       <text class="info-label">备注</text>
-      <text class="info-value {{person.remark ? '' : 'info-empty'}}">{{person.remark || '未填写'}}</text>
+    </view>
+    <view wx:if="{{person.remarks && person.remarks.length > 0}}">
+      <view class="remark-item" wx:for="{{person.remarks}}" wx:key="index">
+        <text class="remark-dot">·</text>
+        <text class="info-value">{{item}}</text>
+      </view>
+    </view>
+    <view wx:else>
+      <text class="info-value info-empty" style="padding-left: 0;">未填写</text>
     </view>
   </view>
 

@@ -68,13 +68,6 @@
       />
     </view>
 
-    <!-- Is deceased -->
-    <view class="form-group">
-      <view class="switch-row">
-        <text class="form-label">已故</text>
-        <switch checked="{{isDeceased}}" bindchange="onDeceasedChange" color="#8B4513" />
-      </view>
-    </view>
   </view>
 
   <!-- Submit -->

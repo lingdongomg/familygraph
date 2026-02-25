@@ -40,6 +40,10 @@
         <text class="item-title">编辑历史</text>
         <view class="item-arrow"></view>
       </view>
+      <view class="list-item" bindtap="onTitleMap">
+        <text class="item-title">称呼表设置</text>
+        <view class="item-arrow"></view>
+      </view>
     </view>
 
     <!-- Members -->

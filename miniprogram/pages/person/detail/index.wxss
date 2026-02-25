@@ -77,6 +77,26 @@
   color: #CCCCCC;
 }
 
+/* Remark items */
+.remark-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 6rpx 0 6rpx 8rpx;
+}
+
+.remark-dot {
+  font-size: 28rpx;
+  color: #8B4513;
+  margin-right: 12rpx;
+  line-height: 1.5;
+}
+
+.remark-item .info-value {
+  text-align: left;
+  margin-left: 0;
+  line-height: 1.5;
+}
+
 /* Photo grid */
 .photo-grid {
   display: flex;
