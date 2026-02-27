@@ -5,7 +5,7 @@ const { getOpenId, success, fail, checkMembership, hasPermission } = require('./
 const {
   SHARED_FIELDS, PRIVATE_OVERLAY_FIELDS, ENCRYPTED_FIELDS,
   REVERSE_RELATION, GENERATION_DELTA, RELATION_TYPES,
-  SIBLING_TYPES, CHILD_TYPES, SPOUSE_TYPES
+  SIBLING_TYPES, CHILD_TYPES, PARENT_TYPES, SPOUSE_TYPES
 } = require('./utils/constants')
 const { encrypt, decrypt } = require('./utils/crypto')
 
@@ -198,6 +198,184 @@ async function create(params) {
         // new person → spouse (SON/DAUGHTER)
         await db.collection('relationships').add({
           data: { family_id, from_id: newPersonId, to_id: spouseId, relation_type: relation_type, created_at: now }
+        })
+      }
+
+      // Rule 6: Child → inherit sibling edges from reference person's other children
+      const otherChildEdges = await db.collection('relationships')
+        .where({
+          family_id,
+          from_id: reference_person_id,
+          relation_type: _.in(CHILD_TYPES)
+        })
+        .get()
+
+      for (const ce of otherChildEdges.data) {
+        const otherChildId = ce.to_id
+        if (otherChildId === newPersonId) continue
+
+        const existing = await db.collection('relationships')
+          .where({ family_id, from_id: newPersonId, to_id: otherChildId })
+          .limit(1)
+          .get()
+        if (existing.data.length > 0) continue
+
+        // Get the other child's person record for gender
+        const otherChildRes = await db.collection('persons').doc(otherChildId).get()
+        const otherChildGender = otherChildRes.data.gender
+
+        // new child is younger sibling of existing child
+        const newToOther = otherChildGender === 'female' ? 'OLDER_SISTER' : 'OLDER_BROTHER'
+        const otherToNew = gender === 'female' ? 'YOUNGER_SISTER' : 'YOUNGER_BROTHER'
+
+        await db.collection('relationships').add({
+          data: { family_id, from_id: newPersonId, to_id: otherChildId, relation_type: newToOther, created_at: now }
+        })
+        await db.collection('relationships').add({
+          data: { family_id, from_id: otherChildId, to_id: newPersonId, relation_type: otherToNew, created_at: now }
+        })
+      }
+    }
+
+    // Rule 3: Parent → inherit child edges from reference person's siblings
+    if (PARENT_TYPES.includes(relation_type)) {
+      const siblingEdges = await db.collection('relationships')
+        .where({
+          family_id,
+          from_id: reference_person_id,
+          relation_type: _.in(SIBLING_TYPES)
+        })
+        .get()
+
+      for (const se of siblingEdges.data) {
+        const siblingId = se.to_id
+
+        const existing = await db.collection('relationships')
+          .where({ family_id, from_id: newPersonId, to_id: siblingId })
+          .limit(1)
+          .get()
+        if (existing.data.length > 0) continue
+
+        // Get sibling's person record for gender
+        const siblingRes = await db.collection('persons').doc(siblingId).get()
+        const siblingGender = siblingRes.data.gender
+
+        // new parent → sibling (FATHER/MOTHER same as relation_type)
+        await db.collection('relationships').add({
+          data: { family_id, from_id: newPersonId, to_id: siblingId, relation_type: relation_type, created_at: now }
+        })
+
+        // sibling → new parent (SON/DAUGHTER based on sibling gender)
+        const childType = siblingGender === 'female' ? 'DAUGHTER' : 'SON'
+        await db.collection('relationships').add({
+          data: { family_id, from_id: siblingId, to_id: newPersonId, relation_type: childType, created_at: now }
+        })
+      }
+
+      // Rule 4: Parent → inherit spouse edge from reference person's other parent
+      const otherParentEdges = await db.collection('relationships')
+        .where({
+          family_id,
+          from_id: reference_person_id,
+          relation_type: _.in(PARENT_TYPES)
+        })
+        .get()
+
+      for (const pe of otherParentEdges.data) {
+        const otherParentId = pe.to_id
+        if (otherParentId === newPersonId) continue
+
+        const existing = await db.collection('relationships')
+          .where({ family_id, from_id: newPersonId, to_id: otherParentId })
+          .limit(1)
+          .get()
+        if (existing.data.length > 0) continue
+
+        // Determine spouse type based on new person's gender
+        const spouseType = gender === 'male' ? 'HUSBAND' : 'WIFE'
+        const reverseSpouseType = gender === 'male' ? 'WIFE' : 'HUSBAND'
+
+        await db.collection('relationships').add({
+          data: { family_id, from_id: newPersonId, to_id: otherParentId, relation_type: spouseType, created_at: now }
+        })
+        await db.collection('relationships').add({
+          data: { family_id, from_id: otherParentId, to_id: newPersonId, relation_type: reverseSpouseType, created_at: now }
+        })
+      }
+    }
+
+    // Rule 5: Sibling → inherit sibling edges from reference person's other siblings
+    if (SIBLING_TYPES.includes(relation_type)) {
+      const otherSiblingEdges = await db.collection('relationships')
+        .where({
+          family_id,
+          from_id: reference_person_id,
+          relation_type: _.in(SIBLING_TYPES)
+        })
+        .get()
+
+      for (const se of otherSiblingEdges.data) {
+        const otherSiblingId = se.to_id
+        if (otherSiblingId === newPersonId) continue
+
+        const existing = await db.collection('relationships')
+          .where({ family_id, from_id: newPersonId, to_id: otherSiblingId })
+          .limit(1)
+          .get()
+        if (existing.data.length > 0) continue
+
+        // Get the other sibling's person record for gender
+        const otherRes = await db.collection('persons').doc(otherSiblingId).get()
+        const otherGender = otherRes.data.gender
+
+        // Use REVERSE_RELATION to determine sibling type
+        // New person views other sibling same way ref views them
+        const newToOther = se.relation_type
+        const reverseMap = REVERSE_RELATION[newToOther]
+        const otherToNew = reverseMap ? (reverseMap[gender] || reverseMap.male) : 'YOUNGER_BROTHER'
+
+        await db.collection('relationships').add({
+          data: { family_id, from_id: newPersonId, to_id: otherSiblingId, relation_type: newToOther, created_at: now }
+        })
+        await db.collection('relationships').add({
+          data: { family_id, from_id: otherSiblingId, to_id: newPersonId, relation_type: otherToNew, created_at: now }
+        })
+      }
+    }
+
+    // Rule 7: Spouse → inherit child edges from reference person's children
+    if (SPOUSE_TYPES.includes(relation_type)) {
+      const childEdges = await db.collection('relationships')
+        .where({
+          family_id,
+          from_id: reference_person_id,
+          relation_type: _.in(CHILD_TYPES)
+        })
+        .get()
+
+      for (const ce of childEdges.data) {
+        const childId = ce.to_id
+
+        const existing = await db.collection('relationships')
+          .where({ family_id, from_id: newPersonId, to_id: childId })
+          .limit(1)
+          .get()
+        if (existing.data.length > 0) continue
+
+        // Get child's person record for gender
+        const childRes = await db.collection('persons').doc(childId).get()
+        const childGender = childRes.data.gender
+
+        // new spouse → child (FATHER/MOTHER based on new person's gender)
+        const parentType = gender === 'female' ? 'MOTHER' : 'FATHER'
+        await db.collection('relationships').add({
+          data: { family_id, from_id: newPersonId, to_id: childId, relation_type: parentType, created_at: now }
+        })
+
+        // child → new spouse (SON/DAUGHTER based on child gender)
+        const childType = childGender === 'female' ? 'DAUGHTER' : 'SON'
+        await db.collection('relationships').add({
+          data: { family_id, from_id: childId, to_id: newPersonId, relation_type: childType, created_at: now }
         })
       }
     }

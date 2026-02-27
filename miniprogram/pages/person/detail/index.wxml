@@ -117,9 +117,14 @@
     </view>
   </view>
 
-  <!-- Delete button -->
-  <view class="delete-btn" wx:if="{{canDelete}}" bindtap="onDelete">
-    删除成员
+  <!-- Actions -->
+  <view class="action-bar">
+    <view class="action-btn action-btn-primary" bindtap="onEditShared">
+      <text>编辑资料</text>
+    </view>
+    <view class="action-btn action-btn-danger" wx:if="{{canDelete}}" bindtap="onDelete">
+      <text>删除成员</text>
+    </view>
   </view>
 </view>
 

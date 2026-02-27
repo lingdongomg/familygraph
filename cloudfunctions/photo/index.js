@@ -18,7 +18,7 @@ const db = cloud.database()
 const _ = db.command
 
 // ---------------------------------------------------------------------------
-// action: upload — 预上传检查与记录创建
+// action: upload — 照片记录创建（客户端先上传文件至云存储，再调此接口保存记录）
 // ---------------------------------------------------------------------------
 async function handleUpload(openid, { family_id, person_id, file_size, file_id, width, height }) {
   if (!family_id || !person_id || !file_size) {

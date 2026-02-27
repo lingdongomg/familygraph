@@ -207,7 +207,105 @@ Component({
 
       // -- Draw edges --
       var self = this
+
+      // Group parent-child edges by parent for bracket rendering
+      // parentChildren: { parentId: [childNode, ...] }
+      var parentChildren = {}
+
       layout.edges.forEach(function (edge) {
+        // Detect parent-child edges and group them
+        // type=FATHER/MOTHER: source says "target is my FATHER/MOTHER" → target=parent, source=child
+        // type=SON/DAUGHTER: source says "target is my SON/DAUGHTER" → source=parent, target=child
+        var parentId = null
+        var childId = null
+        if (edge.type === 'FATHER' || edge.type === 'MOTHER') {
+          parentId = edge.target
+          childId = edge.source
+        } else if (edge.type === 'SON' || edge.type === 'DAUGHTER') {
+          parentId = edge.source
+          childId = edge.target
+        }
+
+        if (parentId && childId) {
+          var parentNode = nodeMap[parentId]
+          var childNode = nodeMap[childId]
+          if (!parentNode || !childNode) return
+
+          if (!parentChildren[parentId]) {
+            parentChildren[parentId] = []
+          }
+          // Avoid duplicates
+          var alreadyAdded = parentChildren[parentId].some(function (c) { return c.id === childNode.id })
+          if (!alreadyAdded) {
+            parentChildren[parentId].push(childNode)
+          }
+        }
+      })
+
+      // Draw bracket/tree lines for parent-child groups
+      var parentIds = Object.keys(parentChildren)
+      for (var pi = 0; pi < parentIds.length; pi++) {
+        var pId = parentIds[pi]
+        var parentNode = nodeMap[pId]
+        if (!parentNode) continue
+        var children = parentChildren[pId]
+        if (children.length === 0) continue
+
+        ctx.strokeStyle = '#1565C0'
+        ctx.lineWidth = 2
+        ctx.setLineDash([])
+
+        // Sort children by X coordinate
+        children.sort(function (a, b) { return a.x - b.x })
+
+        // Midpoint Y between parent and children
+        var childAvgY = 0
+        for (var ci = 0; ci < children.length; ci++) {
+          childAvgY += children[ci].y
+        }
+        childAvgY = childAvgY / children.length
+        var midY = (parentNode.y + childAvgY) / 2
+
+        // Vertical line from parent down to midY
+        ctx.beginPath()
+        ctx.moveTo(parentNode.x, parentNode.y)
+        ctx.lineTo(parentNode.x, midY)
+        ctx.stroke()
+
+        if (children.length === 1) {
+          // Single child: straight vertical line down to child
+          ctx.beginPath()
+          ctx.moveTo(parentNode.x, midY)
+          ctx.lineTo(children[0].x, midY)
+          ctx.stroke()
+          ctx.beginPath()
+          ctx.moveTo(children[0].x, midY)
+          ctx.lineTo(children[0].x, children[0].y)
+          ctx.stroke()
+        } else {
+          // Horizontal line spanning all children at midY
+          var leftX = children[0].x
+          var rightX = children[children.length - 1].x
+          ctx.beginPath()
+          ctx.moveTo(leftX, midY)
+          ctx.lineTo(rightX, midY)
+          ctx.stroke()
+
+          // Vertical lines from midY down to each child
+          for (var ci2 = 0; ci2 < children.length; ci2++) {
+            ctx.beginPath()
+            ctx.moveTo(children[ci2].x, midY)
+            ctx.lineTo(children[ci2].x, children[ci2].y)
+            ctx.stroke()
+          }
+        }
+      }
+
+      // Draw non-parent-child edges (spouse and sibling) as before
+      layout.edges.forEach(function (edge) {
+        // Skip all parent-child edges (already drawn as brackets)
+        if (PARENT_CHILD_TYPES.indexOf(edge.type) !== -1) return
+
         var src = nodeMap[edge.source]
         var tgt = nodeMap[edge.target]
         if (!src || !tgt) return
@@ -220,10 +318,6 @@ Component({
         if (SPOUSE_TYPES.indexOf(edge.type) !== -1) {
           // Spouse: red solid
           ctx.strokeStyle = '#E53935'
-          ctx.setLineDash([])
-        } else if (PARENT_CHILD_TYPES.indexOf(edge.type) !== -1) {
-          // Parent-child: blue solid
-          ctx.strokeStyle = '#1565C0'
           ctx.setLineDash([])
         } else {
           // Sibling: gray dashed
