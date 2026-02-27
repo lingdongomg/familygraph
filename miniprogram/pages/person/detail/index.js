@@ -38,18 +38,25 @@ Page({
 
     try {
       await auth.ensureLogin()
-      const person = await api.callFunction('person/getDetail', {
-        person_id: this.data.personId,
-        family_id: this.data.familyId
-      })
+      const [person, photoResult] = await Promise.all([
+        api.callFunction('person/getDetail', {
+          person_id: this.data.personId,
+          family_id: this.data.familyId
+        }),
+        api.callFunction('photo/list', {
+          person_id: this.data.personId,
+          family_id: this.data.familyId
+        }).catch(() => ({ photos: [] }))
+      ])
 
       const genderLabel = person.gender === GENDER.MALE ? '男' : person.gender === GENDER.FEMALE ? '女' : '未填写'
+      const allPhotos = photoResult.photos || photoResult || []
 
       this.setData({
         person,
         genderLabel,
         canDelete: !!person._can_delete,
-        photos: person.photos ? person.photos.slice(0, 4) : [],
+        photos: allPhotos.slice(0, 4),
         loading: false
       })
     } catch (err) {
@@ -71,16 +78,17 @@ Page({
   },
 
   onViewAlbum() {
+    const personName = this.data.person ? encodeURIComponent(this.data.person.name || '') : ''
     wx.navigateTo({
-      url: `/pages/photo/album/index?person_id=${this.data.personId}&family_id=${this.data.familyId}`
+      url: `/pages/photo/album/index?person_id=${this.data.personId}&family_id=${this.data.familyId}&person_name=${personName}`
     })
   },
 
   onPreviewPhoto(e) {
-    const { url } = e.currentTarget.dataset
-    const urls = this.data.photos.map(p => p.url)
+    const { fileId } = e.currentTarget.dataset
+    const urls = this.data.photos.map(p => p.file_id)
     wx.previewImage({
-      current: url,
+      current: fileId,
       urls
     })
   },

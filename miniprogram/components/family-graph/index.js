@@ -6,8 +6,8 @@
  *
  * Edge styles:
  *   - Spouse edges: red solid line
- *   - Parent-child edges: blue solid line
- *   - Sibling edges: gray dashed line
+ *   - Parent-child edges: blue bracket lines from couple midpoint
+ *   - Sibling edges: hidden (implied by shared parent bracket)
  *
  * Node styles:
  *   - Circle with gender-based fill colour
@@ -21,7 +21,7 @@ var GRAPH = constants.GRAPH
 
 var SPOUSE_TYPES = ['HUSBAND', 'WIFE']
 var PARENT_CHILD_TYPES = ['FATHER', 'MOTHER', 'SON', 'DAUGHTER']
-// Sibling types are everything else.
+var SIBLING_TYPES = ['OLDER_BROTHER', 'YOUNGER_BROTHER', 'OLDER_SISTER', 'YOUNGER_SISTER']
 
 // Max display length before truncation
 var MAX_NAME_LEN = 4
@@ -208,14 +208,20 @@ Component({
       // -- Draw edges --
       var self = this
 
-      // Group parent-child edges by parent for bracket rendering
+      // Build spouse map from edges: personId -> spousePersonId
+      var spouseMap = {}
+      layout.edges.forEach(function (edge) {
+        if (SPOUSE_TYPES.indexOf(edge.type) !== -1) {
+          spouseMap[edge.source] = edge.target
+          spouseMap[edge.target] = edge.source
+        }
+      })
+
+      // Group parent-child edges by parent
       // parentChildren: { parentId: [childNode, ...] }
       var parentChildren = {}
 
       layout.edges.forEach(function (edge) {
-        // Detect parent-child edges and group them
-        // type=FATHER/MOTHER: source says "target is my FATHER/MOTHER" → target=parent, source=child
-        // type=SON/DAUGHTER: source says "target is my SON/DAUGHTER" → source=parent, target=child
         var parentId = null
         var childId = null
         if (edge.type === 'FATHER' || edge.type === 'MOTHER') {
@@ -234,7 +240,6 @@ Component({
           if (!parentChildren[parentId]) {
             parentChildren[parentId] = []
           }
-          // Avoid duplicates
           var alreadyAdded = parentChildren[parentId].some(function (c) { return c.id === childNode.id })
           if (!alreadyAdded) {
             parentChildren[parentId].push(childNode)
@@ -242,91 +247,125 @@ Component({
         }
       })
 
-      // Draw bracket/tree lines for parent-child groups
+      // Merge spouse pairs that share children into couple groups
+      // Each group: { originX, originY, children: [childNode, ...] }
+      var coupleGroups = []
+      var processedParents = {}
+
       var parentIds = Object.keys(parentChildren)
       for (var pi = 0; pi < parentIds.length; pi++) {
         var pId = parentIds[pi]
+        if (processedParents[pId]) continue
+
         var parentNode = nodeMap[pId]
         if (!parentNode) continue
         var children = parentChildren[pId]
-        if (children.length === 0) continue
+        if (!children || children.length === 0) continue
+
+        var spouseId = spouseMap[pId]
+        var spouseNode = spouseId ? nodeMap[spouseId] : null
+        var spouseChildren = spouseId ? parentChildren[spouseId] : null
+
+        if (spouseNode && spouseChildren && spouseChildren.length > 0) {
+          // Merge children from both parents, dedup by id
+          var mergedMap = {}
+          children.forEach(function (c) { mergedMap[c.id] = c })
+          spouseChildren.forEach(function (c) { mergedMap[c.id] = c })
+          var mergedChildren = Object.keys(mergedMap).map(function (k) { return mergedMap[k] })
+
+          coupleGroups.push({
+            originX: (parentNode.x + spouseNode.x) / 2,
+            originY: (parentNode.y + spouseNode.y) / 2,
+            children: mergedChildren
+          })
+          processedParents[pId] = true
+          processedParents[spouseId] = true
+        } else {
+          // Single parent — no spouse in graph
+          coupleGroups.push({
+            originX: parentNode.x,
+            originY: parentNode.y,
+            children: children
+          })
+          processedParents[pId] = true
+        }
+      }
+
+      // Draw bracket/tree lines for each couple group
+      for (var gi = 0; gi < coupleGroups.length; gi++) {
+        var group = coupleGroups[gi]
+        var gChildren = group.children
+        if (gChildren.length === 0) continue
 
         ctx.strokeStyle = '#1565C0'
         ctx.lineWidth = 2
         ctx.setLineDash([])
 
         // Sort children by X coordinate
-        children.sort(function (a, b) { return a.x - b.x })
+        gChildren.sort(function (a, b) { return a.x - b.x })
 
-        // Midpoint Y between parent and children
+        // Midpoint Y between origin and children
         var childAvgY = 0
-        for (var ci = 0; ci < children.length; ci++) {
-          childAvgY += children[ci].y
+        for (var ci = 0; ci < gChildren.length; ci++) {
+          childAvgY += gChildren[ci].y
         }
-        childAvgY = childAvgY / children.length
-        var midY = (parentNode.y + childAvgY) / 2
+        childAvgY = childAvgY / gChildren.length
+        var midY = (group.originY + childAvgY) / 2
 
-        // Vertical line from parent down to midY
+        // Vertical line from couple origin down to midY
         ctx.beginPath()
-        ctx.moveTo(parentNode.x, parentNode.y)
-        ctx.lineTo(parentNode.x, midY)
+        ctx.moveTo(group.originX, group.originY)
+        ctx.lineTo(group.originX, midY)
         ctx.stroke()
 
-        if (children.length === 1) {
-          // Single child: straight vertical line down to child
+        if (gChildren.length === 1) {
+          // Single child: horizontal to child X, then vertical down
           ctx.beginPath()
-          ctx.moveTo(parentNode.x, midY)
-          ctx.lineTo(children[0].x, midY)
+          ctx.moveTo(group.originX, midY)
+          ctx.lineTo(gChildren[0].x, midY)
           ctx.stroke()
           ctx.beginPath()
-          ctx.moveTo(children[0].x, midY)
-          ctx.lineTo(children[0].x, children[0].y)
+          ctx.moveTo(gChildren[0].x, midY)
+          ctx.lineTo(gChildren[0].x, gChildren[0].y)
           ctx.stroke()
         } else {
           // Horizontal line spanning all children at midY
-          var leftX = children[0].x
-          var rightX = children[children.length - 1].x
+          var leftX = gChildren[0].x
+          var rightX = gChildren[gChildren.length - 1].x
           ctx.beginPath()
           ctx.moveTo(leftX, midY)
           ctx.lineTo(rightX, midY)
           ctx.stroke()
 
           // Vertical lines from midY down to each child
-          for (var ci2 = 0; ci2 < children.length; ci2++) {
+          for (var ci2 = 0; ci2 < gChildren.length; ci2++) {
             ctx.beginPath()
-            ctx.moveTo(children[ci2].x, midY)
-            ctx.lineTo(children[ci2].x, children[ci2].y)
+            ctx.moveTo(gChildren[ci2].x, midY)
+            ctx.lineTo(gChildren[ci2].x, gChildren[ci2].y)
             ctx.stroke()
           }
         }
       }
 
-      // Draw non-parent-child edges (spouse and sibling) as before
+      // Draw non-parent-child edges (spouse only; sibling lines removed)
       layout.edges.forEach(function (edge) {
-        // Skip all parent-child edges (already drawn as brackets)
+        // Skip parent-child edges (already drawn as brackets)
         if (PARENT_CHILD_TYPES.indexOf(edge.type) !== -1) return
+        // Skip sibling edges — relationship is implied by shared parent bracket
+        if (SIBLING_TYPES.indexOf(edge.type) !== -1) return
 
         var src = nodeMap[edge.source]
         var tgt = nodeMap[edge.target]
         if (!src || !tgt) return
 
+        // Spouse: red solid
         ctx.beginPath()
         ctx.moveTo(src.x, src.y)
         ctx.lineTo(tgt.x, tgt.y)
         ctx.lineWidth = 2
-
-        if (SPOUSE_TYPES.indexOf(edge.type) !== -1) {
-          // Spouse: red solid
-          ctx.strokeStyle = '#E53935'
-          ctx.setLineDash([])
-        } else {
-          // Sibling: gray dashed
-          ctx.strokeStyle = '#9E9E9E'
-          ctx.setLineDash([6, 4])
-        }
-
-        ctx.stroke()
+        ctx.strokeStyle = '#E53935'
         ctx.setLineDash([])
+        ctx.stroke()
       })
 
       // -- Draw nodes --

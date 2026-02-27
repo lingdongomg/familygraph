@@ -104,11 +104,11 @@
     <view class="photo-grid" wx:if="{{photos.length > 0}}">
       <image
         wx:for="{{photos}}"
-        wx:key="index"
+        wx:key="_id"
         class="photo-thumb"
-        src="{{item.thumb_url || item.url}}"
+        src="{{item.file_id}}"
         mode="aspectFill"
-        data-url="{{item.url}}"
+        data-file-id="{{item.file_id}}"
         bindtap="onPreviewPhoto"
       />
     </view>
@@ -118,11 +118,8 @@
   </view>
 
   <!-- Actions -->
-  <view class="action-bar">
-    <view class="action-btn action-btn-primary" bindtap="onEditShared">
-      <text>编辑资料</text>
-    </view>
-    <view class="action-btn action-btn-danger" wx:if="{{canDelete}}" bindtap="onDelete">
+  <view class="action-bar" wx:if="{{canDelete}}">
+    <view class="action-btn action-btn-danger" bindtap="onDelete">
       <text>删除成员</text>
     </view>
   </view>
