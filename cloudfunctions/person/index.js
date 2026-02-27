@@ -131,17 +131,17 @@ async function create(params) {
 
     // Rule 1: Sibling → inherit parent edges from reference person
     if (SIBLING_TYPES.includes(relation_type)) {
-      // Find reference person's parents (edges where ref is child)
+      // Find reference person's parents: edges where someone is FATHER/MOTHER of ref
       const parentEdges = await db.collection('relationships')
         .where({
           family_id,
-          from_id: reference_person_id,
+          to_id: reference_person_id,
           relation_type: _.in(['FATHER', 'MOTHER'])
         })
         .get()
 
       for (const pe of parentEdges.data) {
-        const parentId = pe.to_id
+        const parentId = pe.from_id
         const parentRelType = pe.relation_type  // FATHER or MOTHER
 
         // Check if edge already exists (parent → new person)
@@ -202,16 +202,17 @@ async function create(params) {
       }
 
       // Rule 6: Child → inherit sibling edges from reference person's other children
+      // Find ref's other children: edges where someone is SON/DAUGHTER of ref
       const otherChildEdges = await db.collection('relationships')
         .where({
           family_id,
-          from_id: reference_person_id,
+          to_id: reference_person_id,
           relation_type: _.in(CHILD_TYPES)
         })
         .get()
 
       for (const ce of otherChildEdges.data) {
-        const otherChildId = ce.to_id
+        const otherChildId = ce.from_id
         if (otherChildId === newPersonId) continue
 
         const existing = await db.collection('relationships')
@@ -276,13 +277,13 @@ async function create(params) {
       const otherParentEdges = await db.collection('relationships')
         .where({
           family_id,
-          from_id: reference_person_id,
+          to_id: reference_person_id,
           relation_type: _.in(PARENT_TYPES)
         })
         .get()
 
       for (const pe of otherParentEdges.data) {
-        const otherParentId = pe.to_id
+        const otherParentId = pe.from_id
         if (otherParentId === newPersonId) continue
 
         const existing = await db.collection('relationships')
@@ -345,16 +346,17 @@ async function create(params) {
 
     // Rule 7: Spouse → inherit child edges from reference person's children
     if (SPOUSE_TYPES.includes(relation_type)) {
+      // Find ref's children: edges where someone is SON/DAUGHTER of ref
       const childEdges = await db.collection('relationships')
         .where({
           family_id,
-          from_id: reference_person_id,
+          to_id: reference_person_id,
           relation_type: _.in(CHILD_TYPES)
         })
         .get()
 
       for (const ce of childEdges.data) {
-        const childId = ce.to_id
+        const childId = ce.from_id
 
         const existing = await db.collection('relationships')
           .where({ family_id, from_id: newPersonId, to_id: childId })
