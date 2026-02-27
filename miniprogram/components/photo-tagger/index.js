@@ -49,14 +49,17 @@ Component({
      */
     onImageTap: function (e) {
       if (!this.data.editable) return
+      if (!e.touches || !e.touches.length) return
 
+      var touchX = e.touches[0].clientX
+      var touchY = e.touches[0].clientY
       var self = this
       var query = this.createSelectorQuery()
       query.select('.tagger-image-wrap')
         .boundingClientRect(function (rect) {
           if (!rect) return
-          var x = ((e.detail.x - rect.left) / rect.width) * 100
-          var y = ((e.detail.y - rect.top) / rect.height) * 100
+          var x = ((touchX - rect.left) / rect.width) * 100
+          var y = ((touchY - rect.top) / rect.height) * 100
 
           // Clamp to 0-100
           x = Math.max(0, Math.min(100, x))

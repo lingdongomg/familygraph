@@ -50,8 +50,13 @@ Page({
       ])
 
       const photo = photoResult.photo || photoResult
-      const tags = photoResult.tags || photo.tags || []
+      const rawTags = photoResult.tags || photo.tags || []
       const persons = personResult.persons || personResult || []
+
+      // Convert tag coordinates from 0-1 (DB) to 0-100 (component percentage)
+      const tags = rawTags.map(function (t) {
+        return Object.assign({}, t, { x: (t.x || 0) * 100, y: (t.y || 0) * 100 })
+      })
 
       this.setData({
         photo: photo,
@@ -184,7 +189,13 @@ Page({
         family_id: this.data.familyId
       })
       var photo = result.photo || result
-      var tags = result.tags || photo.tags || []
+      var rawTags = result.tags || photo.tags || []
+
+      // Convert tag coordinates from 0-1 (DB) to 0-100 (component percentage)
+      var tags = rawTags.map(function (t) {
+        return Object.assign({}, t, { x: (t.x || 0) * 100, y: (t.y || 0) * 100 })
+      })
+
       this.setData({ tags: tags })
     } catch (err) {
       api.showError(err)

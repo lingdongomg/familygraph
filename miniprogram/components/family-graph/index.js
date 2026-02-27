@@ -291,6 +291,11 @@ Component({
         }
       }
 
+      // Bracket drawing constants
+      var bracketNodeRadius = GRAPH.NODE_RADIUS
+      var LABEL_AREA_HEIGHT = 30  // estimated: name 11px + gap 3px + title 10px + gap 6px
+      var BRACKET_GAP = 20        // fixed offset below parent bottom for distribution line
+
       // Draw bracket/tree lines for each couple group
       for (var gi = 0; gi < coupleGroups.length; gi++) {
         var group = coupleGroups[gi]
@@ -304,29 +309,27 @@ Component({
         // Sort children by X coordinate
         gChildren.sort(function (a, b) { return a.x - b.x })
 
-        // Midpoint Y between origin and children
-        var childAvgY = 0
-        for (var ci = 0; ci < gChildren.length; ci++) {
-          childAvgY += gChildren[ci].y
-        }
-        childAvgY = childAvgY / gChildren.length
-        var midY = (group.originY + childAvgY) / 2
+        // Start Y: below parent node bottom edge + label area
+        var startY = group.originY + bracketNodeRadius + LABEL_AREA_HEIGHT
+        // Distribution line Y: fixed offset below startY
+        var midY = startY + BRACKET_GAP
 
-        // Vertical line from couple origin down to midY
+        // Vertical line from parent bottom down to distribution line
         ctx.beginPath()
-        ctx.moveTo(group.originX, group.originY)
+        ctx.moveTo(group.originX, startY)
         ctx.lineTo(group.originX, midY)
         ctx.stroke()
 
         if (gChildren.length === 1) {
-          // Single child: horizontal to child X, then vertical down
+          // Single child: horizontal to child X, then vertical down to child top
+          var childTopY = gChildren[0].y - bracketNodeRadius
           ctx.beginPath()
           ctx.moveTo(group.originX, midY)
           ctx.lineTo(gChildren[0].x, midY)
           ctx.stroke()
           ctx.beginPath()
           ctx.moveTo(gChildren[0].x, midY)
-          ctx.lineTo(gChildren[0].x, gChildren[0].y)
+          ctx.lineTo(gChildren[0].x, childTopY)
           ctx.stroke()
         } else {
           // Horizontal line spanning all children at midY
@@ -337,11 +340,12 @@ Component({
           ctx.lineTo(rightX, midY)
           ctx.stroke()
 
-          // Vertical lines from midY down to each child
+          // Vertical lines from midY down to each child's top edge
           for (var ci2 = 0; ci2 < gChildren.length; ci2++) {
+            var cTopY = gChildren[ci2].y - bracketNodeRadius
             ctx.beginPath()
             ctx.moveTo(gChildren[ci2].x, midY)
-            ctx.lineTo(gChildren[ci2].x, gChildren[ci2].y)
+            ctx.lineTo(gChildren[ci2].x, cTopY)
             ctx.stroke()
           }
         }

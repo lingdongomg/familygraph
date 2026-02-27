@@ -20,7 +20,7 @@
         class="tag-overlay"
         wx:for="{{tags}}"
         wx:key="_id"
-        style="left: {{item.x}}%; top: {{item.y}}%;"
+        style="left: {{item.x * 100}}%; top: {{item.y * 100}}%;"
         data-tag="{{item}}"
         bindtap="onTapTag"
       >
