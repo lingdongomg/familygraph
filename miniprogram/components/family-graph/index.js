@@ -422,35 +422,67 @@ Component({
     loadAvatars: function () {
       var self = this
       var images = {}
-      var remaining = 0
 
+      // Collect cloud file IDs that need URL conversion
+      var fileList = []
+      var fileIdToNodeId = {}
       this.data.nodes.forEach(function (n) {
         if (!n.avatar) return
-        remaining++
-
-        var imgObj = self.canvas.createImage()
-        imgObj.onload = function () {
-          images[n._id] = imgObj
-          remaining--
-          if (remaining <= 0) {
-            self.setData({ images: images })
-            self.render()
-          }
-        }
-        imgObj.onerror = function () {
-          remaining--
-          if (remaining <= 0) {
-            self.setData({ images: images })
-            self.render()
-          }
-        }
-        imgObj.src = n.avatar
+        fileList.push({ fileID: n.avatar })
+        fileIdToNodeId[n.avatar] = n._id
       })
 
-      // If no avatars to load, just set empty
-      if (remaining === 0) {
+      // No avatars to load
+      if (fileList.length === 0) {
         self.setData({ images: images })
+        return
       }
+
+      // Convert cloud file IDs to HTTP temporary URLs
+      wx.cloud.getTempFileURL({
+        fileList: fileList,
+        success: function (res) {
+          var urlMap = {} // nodeId -> httpUrl
+          if (res.fileList) {
+            res.fileList.forEach(function (item) {
+              if (item.tempFileURL && item.status === 0) {
+                var nodeId = fileIdToNodeId[item.fileID]
+                if (nodeId) urlMap[nodeId] = item.tempFileURL
+              }
+            })
+          }
+
+          var remaining = Object.keys(urlMap).length
+          if (remaining === 0) {
+            self.setData({ images: images })
+            return
+          }
+
+          Object.keys(urlMap).forEach(function (nodeId) {
+            var imgObj = self.canvas.createImage()
+            imgObj.onload = function () {
+              images[nodeId] = imgObj
+              remaining--
+              if (remaining <= 0) {
+                self.setData({ images: images })
+                self.render()
+              }
+            }
+            imgObj.onerror = function () {
+              remaining--
+              if (remaining <= 0) {
+                self.setData({ images: images })
+                self.render()
+              }
+            }
+            imgObj.src = urlMap[nodeId]
+          })
+        },
+        fail: function () {
+          // Conversion failed, fall back to initials
+          self.setData({ images: images })
+        }
+      })
     }
   }
 })

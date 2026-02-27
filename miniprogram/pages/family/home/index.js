@@ -12,7 +12,8 @@ Page({
     graphTitles: {},
     currentUserId: '',
     loading: true,
-    activeTab: 'graph' // 'graph' or 'list'
+    activeTab: 'graph', // 'graph' or 'list'
+    showRefPicker: false
   },
 
   onLoad(options) {
@@ -108,17 +109,24 @@ Page({
       return
     }
 
-    // Has members — let user pick a reference person
-    const names = members.map(m => m.name || '未知')
-    wx.showActionSheet({
-      itemList: names,
-      success: (res) => {
-        const refPerson = members[res.tapIndex]
-        wx.navigateTo({
-          url: `/pages/person/create/index?family_id=${familyId}&reference_person_id=${refPerson._id}`
-        })
-      }
-    })
+    // Has members — show custom picker (wx.showActionSheet limited to 6 items)
+    this.setData({ showRefPicker: true })
+  },
+
+  onSelectRef(e) {
+    const index = e.currentTarget.dataset.index
+    const { members, familyId } = this.data
+    const refPerson = members[index]
+    this.setData({ showRefPicker: false })
+    if (refPerson) {
+      wx.navigateTo({
+        url: `/pages/person/create/index?family_id=${familyId}&reference_person_id=${refPerson._id}`
+      })
+    }
+  },
+
+  onClosePicker() {
+    this.setData({ showRefPicker: false })
   },
 
   onSettings() {

@@ -20,7 +20,7 @@ const _ = db.command
 // ---------------------------------------------------------------------------
 // action: upload — 预上传检查与记录创建
 // ---------------------------------------------------------------------------
-async function handleUpload(openid, { family_id, person_id, file_size }) {
+async function handleUpload(openid, { family_id, person_id, file_size, file_id, width, height }) {
   if (!family_id || !person_id || !file_size) {
     return fail('缺少必填参数 (family_id, person_id, file_size)')
   }
@@ -68,10 +68,12 @@ async function handleUpload(openid, { family_id, person_id, file_size }) {
     family_id,
     person_id,
     uploader_id: openid,
-    file_id: '',
+    file_id: file_id || '',
     thumb_file_id: '',
     file_size,
-    status: 'pending',
+    width: width || 0,
+    height: height || 0,
+    status: file_id ? 'active' : 'pending',
     created_at: now,
     updated_at: now
   }

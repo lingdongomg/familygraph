@@ -116,6 +116,11 @@
       <text class="info-empty">暂无照片</text>
     </view>
   </view>
+
+  <!-- Delete button -->
+  <view class="delete-btn" wx:if="{{canDelete}}" bindtap="onDelete">
+    删除成员
+  </view>
 </view>
 
 <!-- Loading state -->

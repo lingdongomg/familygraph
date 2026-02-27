@@ -4,7 +4,8 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const { getOpenId, success, fail, checkMembership, hasPermission } = require('./utils/helpers')
 const {
   SHARED_FIELDS, PRIVATE_OVERLAY_FIELDS, ENCRYPTED_FIELDS,
-  REVERSE_RELATION, GENERATION_DELTA, RELATION_TYPES
+  REVERSE_RELATION, GENERATION_DELTA, RELATION_TYPES,
+  SIBLING_TYPES, CHILD_TYPES, SPOUSE_TYPES
 } = require('./utils/constants')
 const { encrypt, decrypt } = require('./utils/crypto')
 
@@ -89,6 +90,7 @@ async function create(params) {
     avatar_public: false,
     generation,
     bound_user_id: null,
+    created_by: openid,
     created_at: now,
     updated_at: now
   }
@@ -123,6 +125,81 @@ async function create(params) {
         created_at: now
       }
       await db.collection('relationships').add({ data: reverseRel })
+    }
+
+    // ── Infer additional edges ──────────────────────────────────
+
+    // Rule 1: Sibling → inherit parent edges from reference person
+    if (SIBLING_TYPES.includes(relation_type)) {
+      // Find reference person's parents (edges where ref is child)
+      const parentEdges = await db.collection('relationships')
+        .where({
+          family_id,
+          from_id: reference_person_id,
+          relation_type: _.in(['FATHER', 'MOTHER'])
+        })
+        .get()
+
+      for (const pe of parentEdges.data) {
+        const parentId = pe.to_id
+        const parentRelType = pe.relation_type  // FATHER or MOTHER
+
+        // Check if edge already exists (parent → new person)
+        const existing = await db.collection('relationships')
+          .where({ family_id, from_id: parentId, to_id: newPersonId })
+          .limit(1)
+          .get()
+        if (existing.data.length > 0) continue
+
+        // parent → new person (FATHER/MOTHER)
+        await db.collection('relationships').add({
+          data: { family_id, from_id: parentId, to_id: newPersonId, relation_type: parentRelType, created_at: now }
+        })
+
+        // new person → parent (SON/DAUGHTER based on new person's gender)
+        const childType = gender === 'female' ? 'DAUGHTER' : 'SON'
+        await db.collection('relationships').add({
+          data: { family_id, from_id: newPersonId, to_id: parentId, relation_type: childType, created_at: now }
+        })
+      }
+    }
+
+    // Rule 2: Child → inherit parent edge from reference person's spouse
+    if (CHILD_TYPES.includes(relation_type)) {
+      // Find reference person's spouses
+      const spouseEdges = await db.collection('relationships')
+        .where({
+          family_id,
+          from_id: reference_person_id,
+          relation_type: _.in(SPOUSE_TYPES)
+        })
+        .get()
+
+      for (const se of spouseEdges.data) {
+        const spouseId = se.to_id
+
+        // Check if edge already exists (spouse → new person)
+        const existing = await db.collection('relationships')
+          .where({ family_id, from_id: spouseId, to_id: newPersonId })
+          .limit(1)
+          .get()
+        if (existing.data.length > 0) continue
+
+        // Get spouse's person record for gender
+        const spouseRes = await db.collection('persons').doc(spouseId).get()
+        const spouseGender = spouseRes.data.gender
+
+        // spouse → new person (FATHER/MOTHER based on spouse gender)
+        const parentType = spouseGender === 'female' ? 'MOTHER' : 'FATHER'
+        await db.collection('relationships').add({
+          data: { family_id, from_id: spouseId, to_id: newPersonId, relation_type: parentType, created_at: now }
+        })
+
+        // new person → spouse (SON/DAUGHTER)
+        await db.collection('relationships').add({
+          data: { family_id, from_id: newPersonId, to_id: spouseId, relation_type: relation_type, created_at: now }
+        })
+      }
     }
   }
 
@@ -232,7 +309,7 @@ async function update(params) {
 }
 
 // ────────────────────────────────────────
-// delete — Owner 级联删除
+// delete — 级联删除成员
 // ────────────────────────────────────────
 async function del(params) {
   const { person_id, family_id } = params
@@ -244,8 +321,8 @@ async function del(params) {
   const openid = getOpenId()
   const membership = await checkMembership(db, openid, family_id)
   if (!membership) return fail('您不是该家庭的成员')
-  if (!hasPermission(membership.role, 'owner')) {
-    return fail('仅 Owner 可删除成员')
+  if (!hasPermission(membership.role, 'member')) {
+    return fail('Restricted 用户无权删除成员')
   }
 
   // Fetch person for snapshot
@@ -253,6 +330,22 @@ async function del(params) {
   const person = personRes.data
   if (!person || person.family_id !== family_id) {
     return fail('成员不存在或不属于该家庭')
+  }
+
+  // Cannot delete yourself (bound person)
+  if (person.bound_user_id === openid) {
+    return fail('不能删除自己')
+  }
+
+  // Permission check:
+  // - Owner can delete anyone (except self, checked above)
+  // - Member can only delete persons they created
+  const isOwner = membership.role === 'owner'
+  if (!isOwner) {
+    // For legacy records without created_by, only owner can delete
+    if (!person.created_by || person.created_by !== openid) {
+      return fail('只能删除自己创建的成员')
+    }
   }
 
   // Build snapshot_before
@@ -347,6 +440,12 @@ async function getDetail(params) {
   if (!isSelf && !isOwner && !person.avatar_public) {
     result.avatar = ''
   }
+
+  // Compute delete permission for the caller
+  // Owner can delete anyone except self; Member can delete persons they created (except self)
+  const isCreator = !!person.created_by && person.created_by === openid
+  const hasDeleteRole = isOwner || (hasPermission(membership.role, 'member') && isCreator)
+  result._can_delete = !isSelf && hasDeleteRole
 
   // Get caller's private overlay (person_notes)
   const noteRes = await db.collection('person_notes')

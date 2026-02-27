@@ -224,21 +224,16 @@ Component({
         0, 0, OUTPUT_SIZE, OUTPUT_SIZE
       )
 
-      // Export to temp file
-      var tempFilePath = wx.env.USER_DATA_PATH + '/crop_' + Date.now() + '.jpg'
-      var imgData = octx.getImageData(0, 0, OUTPUT_SIZE, OUTPUT_SIZE)
-      var pngData = self._canvas.toDataURL('image/jpeg', 0.9)
-
       // Use canvas toTempFilePath on the main canvas
       // First draw the cropped region to the main canvas at correct dimensions
       var ctx = self._ctx
       var canvas = self._canvas
-      var dpr = wx.getWindowInfo().pixelRatio
 
-      // Reset canvas to output size
-      canvas.width = OUTPUT_SIZE * dpr
-      canvas.height = OUTPUT_SIZE * dpr
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      // Reset canvas to output size (no dpr scaling — keep physical pixels
+      // equal to logical pixels so canvasToTempFilePath exports the full image)
+      canvas.width = OUTPUT_SIZE
+      canvas.height = OUTPUT_SIZE
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
       ctx.clearRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE)
       ctx.drawImage(
         self._img,

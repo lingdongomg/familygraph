@@ -82,5 +82,34 @@
     <view class="fab" bindtap="onAddMember">
       <text class="fab-icon">+</text>
     </view>
+
+    <!-- Member picker popup (replaces wx.showActionSheet to support 7+ members) -->
+    <view class="picker-mask" wx:if="{{showRefPicker}}" bindtap="onClosePicker"></view>
+    <view class="picker-panel {{showRefPicker ? 'picker-show' : ''}}">
+      <view class="picker-header">
+        <text class="picker-title">选择参考人</text>
+        <view class="picker-close" bindtap="onClosePicker">取消</view>
+      </view>
+      <scroll-view class="picker-list" scroll-y>
+        <view
+          class="picker-item"
+          wx:for="{{members}}"
+          wx:key="_id"
+          data-index="{{index}}"
+          bindtap="onSelectRef"
+        >
+          <view class="avatar avatar-sm picker-avatar">
+            <image
+              wx:if="{{item.avatar}}"
+              src="{{item.avatar}}"
+              mode="aspectFill"
+              class="avatar avatar-sm"
+            ></image>
+            <text wx:else class="avatar-text-sm">{{item.name[0] || '?'}}</text>
+          </view>
+          <text class="picker-name">{{item.name || '未知'}}</text>
+        </view>
+      </scroll-view>
+    </view>
   </block>
 </view>

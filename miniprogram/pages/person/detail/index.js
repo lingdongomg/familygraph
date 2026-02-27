@@ -9,7 +9,8 @@ Page({
     person: null,
     photos: [],
     loading: true,
-    genderLabel: ''
+    genderLabel: '',
+    canDelete: false
   },
 
   onLoad(options) {
@@ -47,6 +48,7 @@ Page({
       this.setData({
         person,
         genderLabel,
+        canDelete: !!person._can_delete,
         photos: person.photos ? person.photos.slice(0, 4) : [],
         loading: false
       })
@@ -80,6 +82,27 @@ Page({
     wx.previewImage({
       current: url,
       urls
+    })
+  },
+
+  onDelete() {
+    const { personId, familyId, person } = this.data
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要删除成员「${person.name}」吗？删除后相关关系、照片和备注将一并清除，此操作不可撤销。`,
+      confirmColor: '#E53935',
+      success: (res) => {
+        if (!res.confirm) return
+        api.callWithLoading('person/delete', {
+          person_id: personId,
+          family_id: familyId
+        }, '删除中...').then(() => {
+          api.showSuccess('已删除')
+          wx.navigateBack()
+        }).catch((err) => {
+          api.showError(err)
+        })
+      }
     })
   }
 })

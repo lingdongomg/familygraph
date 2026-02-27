@@ -36,7 +36,7 @@ async function handleLogin(openid) {
   // 已注册用户 —— 直接返回
   if (users.length > 0) {
     const user = users[0]
-    return success({ user_id: user._id, ...user })
+    return success({ user_id: user._id, ...user, nick_name: user.nickname })
   }
 
   // 首次登录 —— 创建新用户
@@ -52,14 +52,16 @@ async function handleLogin(openid) {
   }
 
   const { _id } = await db.collection('users').add({ data: newUser })
-  return success({ user_id: _id, ...newUser })
+  return success({ user_id: _id, ...newUser, nick_name: newUser.nickname })
 }
 
 // ---------------------------------------------------------------------------
 // action: updateProfile
 // ---------------------------------------------------------------------------
-async function handleUpdateProfile(openid, { nickname, avatar_url }) {
-  if (nickname === undefined && avatar_url === undefined) {
+async function handleUpdateProfile(openid, { nickname, nick_name, avatar_url }) {
+  // Accept both 'nickname' and 'nick_name' for compatibility
+  const resolvedNickname = nickname !== undefined ? nickname : nick_name
+  if (resolvedNickname === undefined && avatar_url === undefined) {
     return fail('缺少需要更新的字段 (nickname / avatar_url)')
   }
 
@@ -78,12 +80,14 @@ async function handleUpdateProfile(openid, { nickname, avatar_url }) {
 
   // 构建更新对象 —— 仅包含调用方传入的字段
   const updateData = { updated_at: db.serverDate() }
-  if (nickname !== undefined) updateData.nickname = nickname
+  if (resolvedNickname !== undefined) updateData.nickname = resolvedNickname
   if (avatar_url !== undefined) updateData.avatar_url = avatar_url
 
   await db.collection('users').doc(user._id).update({ data: updateData })
 
-  return success({ user_id: user._id, ...user, ...updateData })
+  const merged = { user_id: user._id, ...user, ...updateData }
+  merged.nick_name = merged.nickname
+  return success(merged)
 }
 
 // ---------------------------------------------------------------------------
