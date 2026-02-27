@@ -294,7 +294,6 @@ Component({
       // Bracket drawing constants
       var bracketNodeRadius = GRAPH.NODE_RADIUS
       var LABEL_AREA_HEIGHT = 30  // estimated: name 11px + gap 3px + title 10px + gap 6px
-      var BRACKET_GAP = 20        // fixed offset below parent bottom for distribution line
 
       // Draw bracket/tree lines for each couple group
       for (var gi = 0; gi < coupleGroups.length; gi++) {
@@ -311,8 +310,18 @@ Component({
 
         // Start Y: below parent node bottom edge + label area
         var startY = group.originY + bracketNodeRadius + LABEL_AREA_HEIGHT
-        // Distribution line Y: fixed offset below startY
-        var midY = startY + BRACKET_GAP
+
+        // Find the topmost child's circle top edge
+        var minChildTopY = gChildren[0].y - bracketNodeRadius
+        for (var ci = 1; ci < gChildren.length; ci++) {
+          var ct = gChildren[ci].y - bracketNodeRadius
+          if (ct < minChildTopY) minChildTopY = ct
+        }
+
+        // Distribution line Y: midpoint between parent bottom and topmost child top
+        var midY = (startY + minChildTopY) / 2
+        // Safety: ensure midY is below startY even when parent-child are very close
+        if (midY <= startY) midY = startY + 10
 
         // Vertical line from parent bottom down to distribution line
         ctx.beginPath()
