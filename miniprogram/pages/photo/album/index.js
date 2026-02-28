@@ -86,21 +86,9 @@ Page({
 
       wx.showLoading({ title: '上传中...', mask: true })
 
-      const cloudPath = 'photos/' + this.data.familyId + '/' + this.data.personId + '/' + Date.now() + '.jpg'
-      const uploadRes = await wx.cloud.uploadFile({
-        cloudPath: cloudPath,
-        filePath: compressed.tempFilePath
-      })
-
-      wx.showLoading({ title: '保存中...', mask: true })
-
-      await api.callFunction('photo/upload', {
-        person_id: this.data.personId,
+      const result = await api.uploadFile('/api/v1/photo/upload', compressed.tempFilePath, {
         family_id: this.data.familyId,
-        file_id: uploadRes.fileID,
-        width: compressed.width,
-        height: compressed.height,
-        file_size: compressed.size
+        person_id: this.data.personId
       })
 
       wx.hideLoading()

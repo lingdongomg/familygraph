@@ -1,5 +1,6 @@
 /**
  * 客户端登录状态管理
+ * 使用 wx.login() + JWT 替代 wx.cloud 隐式鉴权
  */
 
 const api = require('./api')
@@ -23,7 +24,7 @@ function getUser() {
 function setUser(user) {
   try {
     wx.setStorageSync(AUTH_KEY, user)
-    const app = getApp()
+    var app = getApp()
     if (app) {
       app.globalData.userInfo = user
       app.globalData.isLoggedIn = !!user
@@ -39,7 +40,8 @@ function setUser(user) {
 function clearUser() {
   try {
     wx.removeStorageSync(AUTH_KEY)
-    const app = getApp()
+    api.clearToken()
+    var app = getApp()
     if (app) {
       app.globalData.userInfo = null
       app.globalData.isLoggedIn = false
@@ -50,11 +52,39 @@ function clearUser() {
 }
 
 /**
- * 登录：调用云函数获取用户信息
+ * 登录：wx.login() 获取 code → POST /api/v1/user/login → 存储 JWT
  */
 async function login() {
   try {
-    const user = await api.callFunction('user/login')
+    // Step 1: 获取微信临时 code
+    var loginRes = await new Promise(function (resolve, reject) {
+      wx.login({
+        success: resolve,
+        fail: reject
+      })
+    })
+
+    if (!loginRes.code) {
+      throw new Error('wx.login 获取 code 失败')
+    }
+
+    // Step 2: 用 code 换取 JWT token
+    var result = await api.callFunction('user/login', { code: loginRes.code })
+
+    // Step 3: 存储 token
+    if (result.token) {
+      api.setToken(result.token)
+    }
+
+    // Step 4: 构造用户信息对象（兼容旧格式）
+    var user = {
+      user_id: result.user_id,
+      nick_name: result.nick_name || '微信用户',
+      nickname: result.nick_name || '微信用户',
+      avatar_url: result.avatar_url || '',
+      family_ids: result.family_ids || []
+    }
+
     setUser(user)
     return user
   } catch (err) {
@@ -64,11 +94,12 @@ async function login() {
 }
 
 /**
- * 确保已登录，未登录则自动登录
+ * 确保已登录，未登录或 token 过期则自动登录
  */
 async function ensureLogin() {
-  let user = getUser()
-  if (user) return user
+  var user = getUser()
+  var token = api.getToken()
+  if (user && token) return user
   return await login()
 }
 
@@ -76,14 +107,14 @@ async function ensureLogin() {
  * 检查是否已登录
  */
 function isLoggedIn() {
-  return !!getUser()
+  return !!getUser() && !!api.getToken()
 }
 
 module.exports = {
-  getUser,
-  setUser,
-  clearUser,
-  login,
-  ensureLogin,
-  isLoggedIn
+  getUser: getUser,
+  setUser: setUser,
+  clearUser: clearUser,
+  login: login,
+  ensureLogin: ensureLogin,
+  isLoggedIn: isLoggedIn
 }

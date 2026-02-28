@@ -1,13 +1,7 @@
 App({
   onLaunch() {
-    if (!wx.cloud) {
-      console.error('请使用 2.2.3 以上的基础库以使用云能力')
-      return
-    }
-    wx.cloud.init({
-      env: 'cloud1-6gk79e3g86e4662c',
-      traceUser: true
-    })
+    // 自有服务器模式：无需 wx.cloud.init
+    // 登录在 auth.ensureLogin() 中按需触发
   },
 
   globalData: {

@@ -66,13 +66,9 @@ Page({
   async uploadAvatar(filePath) {
     wx.showLoading({ title: '上传中...', mask: true })
     try {
-      const cloudPath = `avatars/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
-      const uploadRes = await wx.cloud.uploadFile({
-        cloudPath,
-        filePath
-      })
+      const result = await api.uploadFile('/api/v1/user/avatar', filePath, {})
 
-      const avatar_url = uploadRes.fileID
+      const avatar_url = result.avatar_url
       await api.callFunction('user/updateProfile', { avatar_url })
 
       const user = this.data.user

@@ -1,0 +1,39 @@
+services:
+  api:
+    build: ./server
+    ports:
+      - "8080:8080"
+    volumes:
+      - db-data:/app/data
+      - uploads:/app/uploads
+    environment:
+      - PORT=8080
+      - DATA_DIR=/app/data
+      - UPLOAD_DIR=/app/uploads
+      - BASE_URL=${BASE_URL:-https://yourdomain.com}
+      - JWT_SECRET=${JWT_SECRET}
+      - WX_APPID=${WX_APPID}
+      - WX_SECRET=${WX_SECRET}
+      - CRYPTO_KEY=${CRYPTO_KEY:-22f9c2560129fd419d98d32acb6fc3180189f57b322f16d311755302d51bea6d}
+    restart: unless-stopped
+    mem_limit: 256m
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - uploads:/usr/share/nginx/uploads:ro
+      - certbot-data:/var/www/certbot:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+    mem_limit: 128m
+
+volumes:
+  db-data:
+  uploads:
+  certbot-data:

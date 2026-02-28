@@ -107,13 +107,12 @@ Page({
     try {
       wx.showLoading({ title: '上传中...', mask: true })
 
-      const cloudPath = `avatars/${this.data.familyId}/${this.data.personId}_${Date.now()}.jpg`
-      const uploadRes = await wx.cloud.uploadFile({
-        cloudPath,
-        filePath: tempFilePath
+      const result = await api.uploadFile('/api/v1/person/avatar', tempFilePath, {
+        family_id: this.data.familyId,
+        person_id: this.data.personId
       })
 
-      this.setData({ avatar: uploadRes.fileID })
+      this.setData({ avatar: result.avatar_url })
       wx.hideLoading()
     } catch (err) {
       wx.hideLoading()
