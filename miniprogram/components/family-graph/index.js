@@ -225,11 +225,13 @@ Component({
         var parentId = null
         var childId = null
         if (edge.type === 'FATHER' || edge.type === 'MOTHER') {
-          parentId = edge.target
-          childId = edge.source
-        } else if (edge.type === 'SON' || edge.type === 'DAUGHTER') {
+          // "from_id is FATHER/MOTHER of to_id" → source is parent
           parentId = edge.source
           childId = edge.target
+        } else if (edge.type === 'SON' || edge.type === 'DAUGHTER') {
+          // "from_id is SON/DAUGHTER of to_id" → target is parent
+          parentId = edge.target
+          childId = edge.source
         }
 
         if (parentId && childId) {
@@ -318,7 +320,7 @@ Component({
           if (ct < minChildTopY) minChildTopY = ct
         }
 
-        // Distribution line Y: midpoint between parent bottom and topmost child top
+        // Distribution line Y: midpoint between parent label bottom and topmost child top
         var midY = (startY + minChildTopY) / 2
         // Safety: ensure midY is below startY even when parent-child are very close
         if (midY <= startY) midY = startY + 10
