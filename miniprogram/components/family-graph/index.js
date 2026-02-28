@@ -308,8 +308,10 @@ Component({
         // Sort children by X coordinate
         gChildren.sort(function (a, b) { return a.x - b.x })
 
-        // Start Y: below parent node bottom edge + label area
-        var startY = group.originY + bracketNodeRadius + LABEL_AREA_HEIGHT
+        // Parent circle bottom edge (for centering math)
+        var parentBottomY = group.originY + bracketNodeRadius
+        // Start Y: below parent node bottom edge + label area (connector origin)
+        var startY = parentBottomY + LABEL_AREA_HEIGHT
 
         // Find the topmost child's circle top edge
         var minChildTopY = gChildren[0].y - bracketNodeRadius
@@ -318,9 +320,9 @@ Component({
           if (ct < minChildTopY) minChildTopY = ct
         }
 
-        // Distribution line Y: midpoint between parent bottom and topmost child top
-        var midY = (startY + minChildTopY) / 2
-        // Safety: ensure midY is below startY even when parent-child are very close
+        // Distribution line Y: midpoint between parent circle bottom and topmost child circle top
+        var midY = (parentBottomY + minChildTopY) / 2
+        // Safety: ensure midY is below label area even when parent-child are very close
         if (midY <= startY) midY = startY + 10
 
         // Vertical line from parent bottom down to distribution line
